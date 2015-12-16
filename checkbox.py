@@ -3,35 +3,42 @@ import urwid
 import globalInput
 import ProductInfo
 
-palette = [
-('buttn','yellow','light gray'),
-('buttnf','white','dark blue','bold'),
-]
+class CheckBox(object):
 
-button_back = urwid.Button(u'  返回')
-button_next = urwid.Button(u' 下一步')
-button_list = [button_back, button_next]
-button = urwid.GridFlow([urwid.AttrWrap(button, 'btn', 'btn') for button in button_list], 12, 5, 0, 'left')
+    def __init__(self, loop, go_product, go_login):
+        self.loop = loop
+        self.go_product = go_product
+        self.go_login = go_login
 
-text_cb_list = [u"Wax", u"导入 ISO 域", u"智能调度", u"虚拟机备份", u"显卡穿透", u"报表"]
+    palette = [
+    ('buttn','yellow','light gray'),
+    ('buttnf','white','dark blue','bold'),
+    ]
 
-div = urwid.Divider()
+    button_back = urwid.Button(u'  返回')
+    button_next = urwid.Button(u' 下一步')
+    button_list = [button_back, button_next]
+    button = urwid.GridFlow([urwid.AttrWrap(button, 'btn', 'btn') for button in button_list], 12, 5, 0, 'left')
 
-checkbox = urwid.Pile([urwid.AttrWrap(urwid.CheckBox(txt), 'buttn', 'buttnf') for txt in text_cb_list])
+    text_cb_list = [u"Wax", u"导入 ISO 域", u"智能调度", u"虚拟机备份", u"显卡穿透", u"报表"]
 
-listbox_content = [urwid.Padding(checkbox, left = 0, right = 2, min_width = 7), div, urwid.Padding(button, left = 0, right = 2, min_width = 7)]
+    div = urwid.Divider()
 
-listbox = urwid.ListBox(urwid.SimpleListWalker(listbox_content))
-frame = urwid.Frame(urwid.AttrWrap(listbox, 'body'))
+    checkbox = urwid.Pile([urwid.AttrWrap(urwid.CheckBox(txt), 'buttn', 'buttnf') for txt in text_cb_list])
 
-def go_back(button):
-   ProductInfo.run_productInfo()
-   raise urwid.ExitMainLoop()
+    listbox_content = [urwid.Padding(checkbox, left = 0, right = 2, min_width = 7), div, urwid.Padding(button, left = 0, right = 2, min_width = 7)]
 
-def go_next(button):
-   globalInput.loop.run()
+    listbox = urwid.ListBox(urwid.SimpleListWalker(listbox_content))
+    frame = urwid.Frame(urwid.AttrWrap(listbox, 'body'))
 
-urwid.connect_signal(button_back, 'click', go_back)
-urwid.connect_signal(button_next, 'click', go_next)
+    def go_back(self, button):
+       loop.widget = self.go_product
 
-loop = urwid.MainLoop(frame, palette)
+    def go_next(self, button):
+       loop.widget = go_login
+
+    urwid.connect_signal(button_back, 'click', go_back)
+    urwid.connect_signal(button_next, 'click', go_next)
+    
+    def get_frame(self):
+       return frame

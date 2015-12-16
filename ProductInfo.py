@@ -1,4 +1,4 @@
-import productInfo
+from productInfo import *
 
-def run_productInfo():
-   productInfo.loop.run()
+def getTop():
+   return top

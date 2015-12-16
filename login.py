@@ -4,74 +4,83 @@ import urwid
 import globalInput
 import ProductInfo
 
-palette = [('I say', 'yellow', 'light gray', 'bold'),
-           ('btn', 'yellow', 'light gray', 'bold'),
-          ]
-ask_username = urwid.Edit(('I say', u"用户名： "))
-ask_password = urwid.Edit(('I say', u"\n密码： "))
-ask_key = urwid.Edit(('I say', u"\nkey: "))
-username = ''
-password = ''
-key = ''
+class LogIn(object):
 
-reply = urwid.Text(u"")
+    def __init__(self, loop, go_trial, go_product):
+        self.loop = loop
+        self.go_trial = go_trial
+        self.go_product = go_product
 
-button_tryout = urwid.Button(u'  试用')
-button_next = urwid.Button(u' 下一步')
-button_list = [button_tryout, button_next]
+	palette = [('I say', 'yellow', 'light gray', 'bold'),
+		   ('btn', 'yellow', 'light gray', 'bold'),
+		  ]
+	ask_username = urwid.Edit(('I say', u"用户名： "))
+	ask_password = urwid.Edit(('I say', u"\n密码： "))
+	ask_key = urwid.Edit(('I say', u"\nkey: "))
+	username = ''
+	password = ''
+	key = ''
 
-#button = urwid.GridFlow([urwid.AttrWrap(button_tryout, button_next], 12, 5, 0, 'left')
+	reply = urwid.Text(u"")
 
-button = urwid.GridFlow([urwid.AttrWrap(button, 'btn', 'btn') for button in button_list], 12, 5, 0, 'left')
+	button_tryout = urwid.Button(u'  试用')
+	button_next = urwid.Button(u' 下一步')
+	button_list = [button_tryout, button_next]
 
-div = urwid.Divider()
+	#button = urwid.GridFlow([urwid.AttrWrap(button_tryout, button_next], 12, 5, 0, 'left')
 
-pile = urwid.Pile([ask_username, div, ask_password, div, ask_key, div, reply, button])
+	button = urwid.GridFlow([urwid.AttrWrap(button, 'btn', 'btn') for button in button_list], 12, 5, 0, 'left')
 
-top = urwid.Filler(pile, valign='top')
+	div = urwid.Divider()
 
-def set_username(username):
-   username = username
+	pile = urwid.Pile([ask_username, div, ask_password, div, ask_key, div, reply, button])
 
-def get_username():
-   return username
+	top = urwid.Filler(pile, valign='top')
 
-def set_password(password):
-   password = password
+	def set_username(self, username):
+	   self.username = username
 
-def get_password():
-   return password
+	def get_username(self):
+	   return username
 
-def set_key(key):
-   key = key
+	def set_password(self, password):
+	   self.password = password
 
-def get_key():
-   return key
+	def get_password(self):
+	   return password
 
-def on_ask_username_change(edit, new_edit_text):
-   set_username(str(new_edit_text))
-   reply.set_text(('I say', u"Nice to meet you, %s" % new_edit_text))
+	def set_key(self, key):
+	   self.key = key
 
-def on_ask_password_change(edit, new_edit_text):
-   set_password(str(new_edit_text))
-   reply.set_text(('I say', u"pwd is %s" % password))
+	def get_key():
+	   return key
 
-def on_ask_key_change(edit, new_edit_text):
-   set_key(str(new_edit_text))
-   reply.set_text(('I say', u"key is %s" % key))
+	def on_ask_username_change(self, edit, new_edit_text):
+	   set_username(str(new_edit_text))
+	   reply.set_text(('I say', u"Nice to meet you, %s" % new_edit_text))
 
-def go_to_try_out(button):
-   globalInput.loop.run()
+	def on_ask_password_change(self, edit, new_edit_text):
+	   set_password(str(new_edit_text))
+	   reply.set_text(('I say', u"pwd is %s" % password))
+
+	def on_ask_key_change(self, edit, new_edit_text):
+	   set_key(str(new_edit_text))
+	   reply.set_text(('I say', u"key is %s" % key))
+
+	def go_to_try_out(self, button):
+	   loop.widget = go_trial
+	   
+	def on_next_clicked(self, button):
+	   loop.widget = go_product
+
+	urwid.connect_signal(ask_username, 'change', on_ask_username_change)
+	urwid.connect_signal(ask_password, 'change', on_ask_password_change)
+	urwid.connect_signal(ask_key, 'change', on_ask_key_change)
+	urwid.connect_signal(button_tryout, 'click', go_to_try_out)
+	urwid.connect_signal(button_next, 'click', on_next_clicked)
+
+	def get_top(self):
+	   return top
    
-def on_next_clicked(button):
-#  raise urwid.ExitMainLoop()
-   ProductInfo.run_productInfo()
-
-urwid.connect_signal(ask_username, 'change', on_ask_username_change)
-urwid.connect_signal(ask_password, 'change', on_ask_password_change)
-urwid.connect_signal(ask_key, 'change', on_ask_key_change)
-urwid.connect_signal(button_tryout, 'click', go_to_try_out)
-urwid.connect_signal(button_next, 'click', on_next_clicked)
-
-loop = urwid.MainLoop(top, palette)
-# loop.run()
+    def get_palette(self):
+       return palette 

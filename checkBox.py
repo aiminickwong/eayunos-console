@@ -1,7 +1,7 @@
-import checkbox
+from checkbox import *
 
-def run_checkbox():
-   checkbox.loop.run()
+def getFrame():
+   return frame
 
 
 

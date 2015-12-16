@@ -5,64 +5,67 @@ import urwid
 import checkBox
 import Login
 
-palette = [
-    ('banner', 'yellow', 'light gray'),
-    ('streak', 'yellow', 'light gray'),
-    ('btn', 'yellow', 'light gray', 'bold'),]
+class Product(object):
 
-info = os.popen('date').readlines()
-info_txt = ''
+    def __init__(self, loop, go_login, go_checkbox):
+        self.loop = loop
+        self.go_login = go_login
+        self.go_checkbox = go_checkbox
 
-for i in range(len(info)):
-    text = info[i]
-    info_txt += text
+	palette = [
+		('banner', 'yellow', 'light gray'),
+		('streak', 'yellow', 'light gray'),
+		('btn', 'yellow', 'light gray', 'bold'),]
 
-txtInfo = urwid.Text(info_txt, align = 'center')
+	info = os.popen('date').readlines()
+	info_txt = ''
 
-txt = urwid.Text(u"当前产品架构：非 HostedEngine", align = 'center')
-#map1 = urwid.AttrMap(txt, 'streak')
-#fill = urwid.Filler(map1)
+	for i in range(len(info)):
+		text = info[i]
+		info_txt += text
 
-button_product = urwid.Button(u'产品信息')
-button_exit = urwid.Button(u'返回')
-button_next = urwid.Button(u'下一步')
+	txtInfo = urwid.Text(info_txt, align = 'center')
 
-product_list = [button_product, txtInfo]
-button_list = [button_exit, button_next]
+	txt = urwid.Text(u"当前产品架构：非 HostedEngine", align = 'center')
+	#map1 = urwid.AttrMap(txt, 'streak')
+	#fill = urwid.Filler(map1)
 
-# 架构信息
-product_div = urwid.GridFlow([urwid.AttrWrap(txt, 'streak')], 38, 5, 0, 'center')
-# 产品信息按钮
-button_product_div = urwid.GridFlow([urwid.AttrWrap(button_product, 'btn')], 15, 5, 0, 'center')
-# 显示信息
-product_info_div = urwid.GridFlow([urwid.AttrWrap(txtInfo, 'streak')], 38, 5, 0, 'center')
-# 返回按钮 & 下一步按钮
-button_div = urwid.GridFlow([urwid.AttrWrap(button, 'btn', 'btn') for button in button_list], 10, 5, 0, 'center')
-div = urwid.Divider()
+	button_product = urwid.Button(u'产品信息')
+	button_exit = urwid.Button(u'返回')
+	button_next = urwid.Button(u'下一步')
 
-pile = urwid.Pile([product_div, div, button_product_div, div, div, button_div])
+	product_list = [button_product, txtInfo]
+	button_list = [button_exit, button_next]
 
-def change_pile():
-    pile = urwid.Pile([product_div, div, product_info_div, div, button_div])
-    print pile
+	# 架构信息
+	product_div = urwid.GridFlow([urwid.AttrWrap(txt, 'streak')], 38, 5, 0, 'center')
+	# 产品信息按钮
+	button_product_div = urwid.GridFlow([urwid.AttrWrap(button_product, 'btn')], 15, 5, 0, 'center')
+	# 显示信息
+	product_info_div = urwid.GridFlow([urwid.AttrWrap(txtInfo, 'streak')], 38, 5, 0, 'center')
+	# 返回按钮 & 下一步按钮
+	button_div = urwid.GridFlow([urwid.AttrWrap(button, 'btn', 'btn') for button in button_list], 10, 5, 0, 'center')
+	div = urwid.Divider()
 
-def on_product_clicked(button):
-#    pile = urwid.Pile([product_div, div, product_info_div, div, button_div])
-#    product_div = urwid.GridFlow([urwid.AttrWrap(product_thing, 'btn', 'streak') for product_thing in product_list], 15, 5, 0, 'center')
-    change_pile()
-
-def on_next_clicked(button):
-    checkBox.run_checkbox()    
-
-def on_exit_clicked(button):
-    Login.run_login()
-    raise urwid.ExitMainLoop()
+	pile = urwid.Pile([product_div, div, button_product_div, div, div, button_div])
 
 
-urwid.connect_signal(button_product, 'click', on_product_clicked)
-urwid.connect_signal(button_next, 'click', on_next_clicked)
-urwid.connect_signal(button_exit, 'click', on_exit_clicked)
+	def on_product_clicked(self, button):
+		pile = urwid.Pile([product_div, div, product_info_div, div, button_div])
+		new_top = urwid.Filler(pile, valign='top')
+		loop.widget = new_top
 
-top = urwid.Filler(pile, valign='top')
-loop = urwid.MainLoop(top, palette)
-#loop.run()
+	def on_exit_clicked(self, button):
+		loop.widget = go_login
+		
+	def on_next_clicked(self, button):
+		loop.widget = go_checkbox    
+
+	urwid.connect_signal(button_product, 'click', on_product_clicked)
+	urwid.connect_signal(button_next, 'click', on_next_clicked)
+	urwid.connect_signal(button_exit, 'click', on_exit_clicked)
+
+	top = urwid.Filler(pile, valign='top')
+   
+    def get_top(self):
+        return self.top

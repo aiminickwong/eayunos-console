@@ -1,5 +1,8 @@
-import login
+from login import *
+
+def getTop():
+   return top
 
 def run_login():
-   login.loop.run()
+   loop.run()
 
