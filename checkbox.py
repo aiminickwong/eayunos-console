@@ -5,10 +5,19 @@ import ProductInfo
 
 class CheckBox(object):
 
-    def __init__(self, loop, go_product, go_login):
+    def __init__(self, loop):
+        self.widgetList = []
+        self.widgetList.append(self.frame)
+        self.widgetList.append(self.palette) 
         self.loop = loop
-        self.go_product = go_product
-        self.go_login = go_login
+        urwid.connect_signal(self.button_back, 'click', self.go_back)
+        urwid.connect_signal(self.button_next, 'click', self.go_next)
+
+    def set_widgetList(self, go_product = [None, None], go_login = [None, None]):
+        self.go_product_widget = go_product[0]
+        self.go_product_palette = go_product[1]
+        self.go_login_widget = go_login[0]
+        self.go_login_palette = go_login[1]
 
     palette = [
     ('buttn','yellow','light gray'),
@@ -32,13 +41,13 @@ class CheckBox(object):
     frame = urwid.Frame(urwid.AttrWrap(listbox, 'body'))
 
     def go_back(self, button):
-       loop.widget = self.go_product
+       self.loop.widget = self.go_product_widget
+       self.loop.palette = self.go_product_palette
 
     def go_next(self, button):
-       loop.widget = go_login
+       self.loop.widget = self.go_login_widget
+       self.loop.palette = self.go_login_palette
 
-    urwid.connect_signal(button_back, 'click', go_back)
-    urwid.connect_signal(button_next, 'click', go_next)
-    
-    def get_frame(self):
-       return frame
+
+    def get_widget(self):
+       return self.widgetList

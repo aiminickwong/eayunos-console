@@ -5,17 +5,24 @@ import globalInput
 
 go_trial = globalInput.fill
 
-loop = urwid.MainLoop(None, palette)
+loop = urwid.MainLoop(None, None)
 
-l = LogIn(loop, go_trial, tiral_palette, go_product, product_palette)
-p = Product(loop, go_login, go_checkout)
-c = CheckBox(loop, go_product, go_login)
+l = LogIn(loop)
+p = Product(loop)
+c = CheckBox(loop)
 
-go_login = l.get_top()
-go_product = p.get_top()
-go_checkout = c.get_frame()
+#go_trial = t.get_widget()
+go_trial = [None, None]
+go_login = l.get_widget()
+go_product = p.get_widget()
+go_checkbox = c.get_widget()
 
-loop.widget = go_login
+l.set_widgetList(go_trial, go_product)
+p.set_widgetList(go_login, go_checkbox)
+c.set_widgetList(go_product, go_login)
 
-if __main__ == __name__:
+loop.widget = go_login[0]
+loop.palette = go_login[1]
+
+if __name__ == '__main__':
    loop.run()
