@@ -2,8 +2,6 @@
 
 import os
 import urwid
-import checkBox
-import Login
 
 class Product(object):
 
@@ -16,7 +14,7 @@ class Product(object):
       urwid.connect_signal(self.button_next, 'click', self.on_next_clicked)
       urwid.connect_signal(self.button_exit, 'click', self.on_exit_clicked)
    
-   def set_widgetList(self, go_login = [None, None], go_checkbox = [None, None]):
+   def set_widgetList_other(self, go_login = [None, None], go_checkbox = [None, None]):
       self.go_login_widget = go_login[0]
       self.go_login_palette = go_login[1]
       self.go_checkbox_widget = go_checkbox[0]
@@ -53,7 +51,7 @@ class Product(object):
    # 产品信息按钮
    button_product_div = urwid.GridFlow([urwid.AttrWrap(button_product, 'btn')], 15, 5, 0, 'center')
    # 显示信息
-   product_info_div = urwid.GridFlow([urwid.AttrWrap(txtInfo, 'streak')], 38, 5, 0, 'center')
+   product_info_div = urwid.GridFlow([urwid.AttrWrap(txtInfo, 'streak')], 50, 5, 0, 'left')
    # 返回按钮 & 下一步按钮
    button_div = urwid.GridFlow([urwid.AttrWrap(button, 'btn', 'btn') for button in button_list], 10, 5, 0, 'center')
    div = urwid.Divider()

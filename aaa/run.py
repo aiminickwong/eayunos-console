@@ -1,3 +1,5 @@
+# _*_ coding:utf-8 _*_
+
 from login import *
 from productInfo import *
 from checkbox import *
@@ -17,7 +19,7 @@ l = LogIn(loop)
 p = Product(loop)
 c = CheckBox(loop)
 
-go_trial = [None, None]
+go_trial = None
 go_login = l.get_widget()
 go_product = p.get_widget()
 go_checkbox = c.get_widget()
@@ -26,9 +28,23 @@ l.set_widgetList_other(go_trial, go_product)
 p.set_widgetList_other(go_login, go_checkbox)
 c.set_widgetList_other(go_product, go_login)
 
-loop.widget = go_login[0]
-loop.palette = go_login[1]
+loop.widget = go_login
+
+# 获取 login 中的登录信息
+username = l.get_username()
+password = l.get_password()
+key = l.get_key()
+
+# 将登录信息传给 product 类中
+p.set_username(username)
+p.set_password(password)
+p.set_key(key)
 
 if __name__ == '__main__':
-   loop.run() 
    #urwid.MainLoop(loop.widget, loop.palette).run()
+   print username
+   print password
+   print type(username)
+   print type(password)
+   print '-------------------'
+   loop.run() 
