@@ -19,6 +19,7 @@ l = LogIn(loop)
 p = Product(loop)
 c = CheckBox(loop)
 
+
 go_trial = None
 go_login = l.get_widget()
 go_product = p.get_widget()
@@ -30,21 +31,6 @@ c.set_widgetList_other(go_product, go_login)
 
 loop.widget = go_login
 
-# 获取 login 中的登录信息
-username = l.get_username()
-password = l.get_password()
-key = l.get_key()
-
-# 将登录信息传给 product 类中
-p.set_username(username)
-p.set_password(password)
-p.set_key(key)
-
 if __name__ == '__main__':
-   #urwid.MainLoop(loop.widget, loop.palette).run()
-   print username
-   print password
-   print type(username)
-   print type(password)
-   print '-------------------'
+   l.set_Product_object(p)
    loop.run() 
