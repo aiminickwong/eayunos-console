@@ -15,8 +15,9 @@ palette = [
 
 loop = urwid.MainLoop(None, palette)
 
-l = LogIn(loop)
+#l = LogIn(loop)
 p = Product(loop)
+l = LogIn(loop, p)
 c = CheckBox(loop)
 
 
@@ -32,5 +33,4 @@ c.set_widgetList_other(go_product, go_login)
 loop.widget = go_login
 
 if __name__ == '__main__':
-   l.set_Product_object(p)
    loop.run() 
