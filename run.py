@@ -1,3 +1,5 @@
+# _*_ coding:utf-8 _*_
+
 from login import *
 from productInfo import *
 from checkbox import *
@@ -13,11 +15,13 @@ palette = [
 
 loop = urwid.MainLoop(None, palette)
 
-l = LogIn(loop)
+#l = LogIn(loop)
 p = Product(loop)
+l = LogIn(loop, p)
 c = CheckBox(loop)
 
-go_trial = [None, None]
+
+go_trial = None
 go_login = l.get_widget()
 go_product = p.get_widget()
 go_checkbox = c.get_widget()
@@ -26,9 +30,7 @@ l.set_widgetList_other(go_trial, go_product)
 p.set_widgetList_other(go_login, go_checkbox)
 c.set_widgetList_other(go_product, go_login)
 
-loop.widget = go_login[0]
-loop.palette = go_login[1]
+loop.widget = go_login
 
 if __name__ == '__main__':
    loop.run() 
-   #urwid.MainLoop(loop.widget, loop.palette).run()
