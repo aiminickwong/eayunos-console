@@ -24,7 +24,7 @@ class LogIn(object):
        urwid.connect_signal(self.button_next, 'click', self.on_next_clicked)
        self.button = urwid.GridFlow([urwid.AttrWrap(button, 'btn', 'btn') for button in self.button_list], 12, 5, 0, 'center')
        
-       self.pile = urwid.Pile([self.ask_username, self.div, self.ask_password, self.div, self.ask_key, self.div, self.reply, self.button])
+       self.pile = urwid.Pile([self.ask_username, self.div, self.ask_password, self.div, self.ask_key, self.div, self.button])
        self.top = urwid.Filler(self.pile, valign='top')
 
    def set_widgetList_other(self, go_trial, go_product):

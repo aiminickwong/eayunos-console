@@ -3,6 +3,9 @@
 from login import *
 from productInfo import *
 from checkbox import *
+from configtab import ConfigTab
+from tabnetwork import TabNetwork
+from tabenginesetup import TabEngineSetup
 import globalInput
 
 palette = [
@@ -19,9 +22,13 @@ loop = urwid.MainLoop(None, palette)
 p = Product(loop)
 l = LogIn(loop, p)
 c = CheckBox(loop)
+config_tab_list = [
+    TabNetwork(),
+    TabEngineSetup(),
+]
 
 
-go_trial = None
+go_trial = ConfigTab(config_tab_list)
 go_login = l.get_widget()
 go_product = p.get_widget()
 go_checkbox = c.get_widget()
