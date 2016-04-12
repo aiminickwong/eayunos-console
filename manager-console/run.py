@@ -4,6 +4,7 @@ from login import *
 from productInfo import *
 from checkbox import *
 from configtab import ConfigTab
+from tabnetwork import TabNetwork
 from tabenginesetup import TabEngineSetup
 import globalInput
 
@@ -22,6 +23,7 @@ p = Product(loop)
 l = LogIn(loop, p)
 c = CheckBox(loop)
 config_tab_list = [
+    TabNetwork(),
     TabEngineSetup(),
 ]
 
