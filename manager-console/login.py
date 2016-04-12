@@ -1,7 +1,6 @@
 # _*_ coding: utf-8 _*_
 
 import urwid
-import globalInput
 
 class LogIn(object):
 

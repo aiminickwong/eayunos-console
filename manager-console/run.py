@@ -6,7 +6,6 @@ from checkbox import *
 from configtab import ConfigTab
 from tabnetwork import TabNetwork
 from tabenginesetup import TabEngineSetup
-import globalInput
 
 palette = [
        ('I say', 'yellow', 'light gray', 'bold'),
