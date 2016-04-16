@@ -12,14 +12,14 @@ palette = [
        ('buttnf','white','dark blue','bold'),
        ]
 
-loop = urwid.MainLoop(None, palette)
+loop = urwid.MainLoop(None, palette, pop_ups=True)
 
 #l = LogIn(loop)
 p = Product(loop)
 l = LogIn(loop, p)
 c = CheckBox(loop)
 config_tab_list = [
-    TabNetwork(),
+    TabNetwork(loop),
     TabEngineSetup(),
 ]
 
