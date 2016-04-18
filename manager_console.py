@@ -1,12 +1,8 @@
 # _*_ coding:utf-8 _*_
 
-from login import *
-from productInfo import *
-from checkbox import *
-from configtab import ConfigTab
-from tabnetwork import TabNetwork
-from tabenginesetup import TabEngineSetup
-import globalInput
+import urwid
+from common import ConfigTab
+from manager_console import Product, LogIn, CheckBox, TabEngineSetup, TabNetwork
 
 palette = [
        ('I say', 'yellow', 'light gray', 'bold'),
@@ -16,14 +12,14 @@ palette = [
        ('buttnf','white','dark blue','bold'),
        ]
 
-loop = urwid.MainLoop(None, palette)
+loop = urwid.MainLoop(None, palette, pop_ups=True)
 
 #l = LogIn(loop)
 p = Product(loop)
 l = LogIn(loop, p)
 c = CheckBox(loop)
 config_tab_list = [
-    TabNetwork(),
+    TabNetwork(loop),
     TabEngineSetup(),
 ]
 
@@ -40,4 +36,4 @@ c.set_widgetList_other(go_product, go_login)
 loop.widget = go_login
 
 if __name__ == '__main__':
-   loop.run() 
+   loop.run()

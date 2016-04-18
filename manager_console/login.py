@@ -1,7 +1,6 @@
 # _*_ coding: utf-8 _*_
 
 import urwid
-import globalInput
 
 class LogIn(object):
 
@@ -23,7 +22,7 @@ class LogIn(object):
        urwid.connect_signal(self.button_tryout, 'click', self.go_to_try_out)
        urwid.connect_signal(self.button_next, 'click', self.on_next_clicked)
        self.button = urwid.GridFlow([urwid.AttrWrap(button, 'btn', 'btn') for button in self.button_list], 12, 5, 0, 'center')
-       
+
        self.pile = urwid.Pile([self.ask_username, self.div, self.ask_password, self.div, self.ask_key, self.div, self.button])
        self.top = urwid.Filler(self.pile, valign='top')
 

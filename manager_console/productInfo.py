@@ -33,7 +33,7 @@ class Product(object):
       urwid.connect_signal(self.button_product, 'click', self.on_product_clicked)
       urwid.connect_signal(self.button_next, 'click', self.on_next_clicked)
       urwid.connect_signal(self.button_exit, 'click', self.on_exit_clicked)
-  
+
    # 生成信息组件
    def generateInfo(self):
       valid = 'admin'
@@ -43,7 +43,7 @@ class Product(object):
          self.info = os.popen('date').readlines()
          #info = os.popen('subscription-manager list --all --available').readlines()
          #info = os.popen('subscription-manager orgs --username=admin').readlines()
-      
+
          # 目的：将返回的列表类型的信息转换成字符串类型
          self.info_txt = ''
          for i in range(len(self.info)):
@@ -80,17 +80,17 @@ class Product(object):
    def set_widgetList_other(self, go_login, go_checkbox):
       self.go_login_widget = go_login
       self.go_checkbox_widget = go_checkbox
-   
+
    # 回调函数
    def on_product_clicked(self, button):
       self.generateInfo()
 
    def on_exit_clicked(self, button):
       self.loop.widget = self.go_login_widget
-   
+
    def on_next_clicked(self, button):
       self.loop.widget = self.go_checkbox_widget
-  
+
    # 获取到 product 页面的 widget
    def get_widget(self):
-      return self.top 
+      return self.top

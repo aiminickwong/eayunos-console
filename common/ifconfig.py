@@ -230,7 +230,7 @@ class Interface(object):
     def set_netmask(self, netmask):
         netmask = ctypes.c_uint32(~((2 ** (32 - netmask)) - 1)).value
         nmbytes = socket.htonl(netmask)
-        ifreq = struct.pack('16sH2sI8s', self.name, AF_INET, b'\x00'*2, nmbytes, b'\x00'*8) 
+        ifreq = struct.pack('16sH2sI8s', self.name, AF_INET, b'\x00'*2, nmbytes, b'\x00'*8)
         fcntl.ioctl(sockfd, SIOCSIFNETMASK, ifreq)
 
 
