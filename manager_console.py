@@ -2,7 +2,7 @@
 
 import urwid
 from common import ConfigTab, TabNetwork
-from manager_console import Product, LogIn, CheckBox, TabEngineSetup
+from manager_console import Product, LogIn, CheckBox
 
 palette = [
        ('I say', 'yellow', 'light gray', 'bold'),
@@ -20,7 +20,6 @@ l = LogIn(loop, p)
 c = CheckBox(loop)
 config_tab_list = [
     TabNetwork(loop),
-    TabEngineSetup(),
 ]
 
 
