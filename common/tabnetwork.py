@@ -3,8 +3,7 @@ import thread
 import urwid
 import socket
 import inspect
-os.sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))))
-from common import ifconfig
+import ifconfig
 
 class TabNetwork(object):
 

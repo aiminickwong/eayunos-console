@@ -1,8 +1,8 @@
 # _*_ coding:utf-8 _*_
 
 import urwid
-from common import ConfigTab
-from manager_console import Product, LogIn, CheckBox, TabEngineSetup, TabNetwork
+from common import ConfigTab, TabNetwork
+from manager_console import Product, LogIn, CheckBox, TabEngineSetup
 
 palette = [
        ('I say', 'yellow', 'light gray', 'bold'),
