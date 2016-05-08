@@ -77,10 +77,10 @@ class TabHostedEngine(object):
             script_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
             os.system("cp %s/node_console/answers.conf /tmp/.answers.conf" % script_dir)
             self.update_answers_file("HEN_GATEWAY", self.w_gateway.get_edit_text())
-            self.update_answers_file("HEN_BRIDGE_IF", self.w_bridge_if[0].get_label())
+            self.update_answers_file("HEN_BRIDGE_IF", self.get_radio_option(self.w_bridge_if))
             self.update_answers_file("HEE_ADMIN_PASSWORD", self.w_engine_admin_password.get_edit_text())
             self.update_answers_file("HEE_APP_HOSTNAME", self.w_engine_hostname.get_edit_text())
-            self.update_answers_file("HES_DOMAIN_TYPE", self.w_storage_type[0].get_label())
+            self.update_answers_file("HES_DOMAIN_TYPE", self.get_radio_option(self.w_storage_type))
             self.update_answers_file("HES_STORAGE_DOMAIN_CONNECTION", self.w_storage_connection.get_edit_text())
             self.update_answers_file("HEV_CLOUDINIT_ROOT_PWD", self.w_engine_root_password.get_edit_text())
             self.update_answers_file("HEV_VM_MAC_ADDR", self.w_engine_mac_addr.get_edit_text())
@@ -100,6 +100,11 @@ class TabHostedEngine(object):
             os.system("touch /tmp/.hosted-engine-setup.log")
             os.system("screen -S hosted_engine_setup -X stuff 'ovirt-hosted-engine-setup --config-append=/tmp/.answers.conf &>/tmp/.hosted-engine-setup.log\n'")
             self.widget.original_widget = self.get_setup_widget()
+
+    def get_radio_option(self, radiobutton_widget):
+        for button in radiobutton_widget:
+            if button.get_state():
+                return button.get_label()
 
     def update_answers_file(self, key, value):
         os.system("sed -i s/{%s}/%s/ /tmp/.answers.conf" % (key, value.replace("/","\\\/")))
