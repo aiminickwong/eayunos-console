@@ -2,8 +2,8 @@
 # _*_ coding:utf-8 _*_
 
 import urwid
-from common import ConfigTab, TabNetwork
-from manager_console import Product, LogIn, CheckBox
+from eayunos_console_common import ConfigTab, TabNetwork
+from eayunos_console_manager import Product, LogIn, CheckBox
 
 palette = [
        ('I say', 'yellow', 'light gray', 'bold'),

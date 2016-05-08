@@ -15,7 +15,7 @@ os.sys.path.insert(
         os.path.dirname(
             os.path.abspath(
                 inspect.getfile(inspect.currentframe())))))
-from common import ifconfig
+from eayunos_console_common import ifconfig
 
 
 class TabHostedEngine(object):
@@ -77,7 +77,7 @@ class TabHostedEngine(object):
     def begin_setup(self, button):
         if self.validate_setup_input():
             script_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
-            os.system("cp %s/node_console/answers.conf %s" % (script_dir, self.answers_path))
+            os.system("cp /etc/eayunos-console-node/answers.conf %s" % self.answers_path)
             self.update_answers_file("HEN_GATEWAY", self.w_gateway.get_edit_text())
             self.update_answers_file("HEN_BRIDGE_IF", self.get_radio_option(self.w_bridge_if))
             self.update_answers_file("HEE_ADMIN_PASSWORD", self.w_engine_admin_password.get_edit_text())

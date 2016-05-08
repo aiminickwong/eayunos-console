@@ -4,8 +4,8 @@
 import sys
 import signal
 import urwid
-from common import ConfigTab, TabNetwork
-from node_console import TabHostedEngine
+from eayunos_console_common import ConfigTab, TabNetwork
+from eayunos_console_node import TabHostedEngine
 
 def handler(signum, frame):
     sys.exit()
