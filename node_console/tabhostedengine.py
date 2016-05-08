@@ -26,6 +26,8 @@ class TabHostedEngine(object):
         self.output = urwid.Text("")
         hosted_engine_status = self.get_hosted_engine_status()
         self.widget = urwid.AttrMap("", "")
+        self.setup_log_path = "/tmp/.hosted-engine-setup.log"
+        self.answers_path = "/tmp/.answers.conf"
         if hosted_engine_status == "stopped":
             self.widget.original_widget = self.get_pre_setup_widget()
         elif hosted_engine_status == "setting_up":
@@ -75,7 +77,7 @@ class TabHostedEngine(object):
     def begin_setup(self, button):
         if self.validate_setup_input():
             script_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
-            os.system("cp %s/node_console/answers.conf /tmp/.answers.conf" % script_dir)
+            os.system("cp %s/node_console/answers.conf %s" % (script_dir, self.answers_path))
             self.update_answers_file("HEN_GATEWAY", self.w_gateway.get_edit_text())
             self.update_answers_file("HEN_BRIDGE_IF", self.get_radio_option(self.w_bridge_if))
             self.update_answers_file("HEE_ADMIN_PASSWORD", self.w_engine_admin_password.get_edit_text())
@@ -96,9 +98,9 @@ class TabHostedEngine(object):
             self.update_answers_file("HEV_VM_VCPUS", str(min(max(min(2, host_vcpu_count), host_vcpu_count/2), 4)))
             os.system("screen -X -S hosted_engine_setup quit")
             os.system("screen -dmS hosted_engine_setup")
-            os.system("rm -f /tmp/.hosted-engine-setup.log")
-            os.system("touch /tmp/.hosted-engine-setup.log")
-            os.system("screen -S hosted_engine_setup -X stuff 'ovirt-hosted-engine-setup --config-append=/tmp/.answers.conf &>/tmp/.hosted-engine-setup.log\n'")
+            os.system("rm -f %s" % self.setup_log_path)
+            os.system("touch %s" % self.setup_log_path)
+            os.system("screen -S hosted_engine_setup -X stuff 'ovirt-hosted-engine-setup --config-append=%s &>%s\n'" % (self.answers_path, self.setup_log_path))
             self.widget.original_widget = self.get_setup_widget()
 
     def get_radio_option(self, radiobutton_widget):
@@ -107,7 +109,7 @@ class TabHostedEngine(object):
                 return button.get_label()
 
     def update_answers_file(self, key, value):
-        os.system("sed -i s/{%s}/%s/ /tmp/.answers.conf" % (key, value.replace("/","\\\/")))
+        os.system("sed -i s/{%s}/%s/ %s" % (key, value.replace("/","\\\/"), self.answers_path))
 
     def get_ova_file(self, ovs_dir):
         for f in os.listdir(ovs_dir):
@@ -125,13 +127,6 @@ class TabHostedEngine(object):
             footer=urwid.Button("percentage"),
             focus_part="header"), 30)
         widget.set_focus("footer")
-        write_fd = self.main_loop.watch_pipe(self.received_output)
-        subprocess.Popen(
-            ["tail", "-n", "30", "-f", "/tmp/.hosted-engine-setup.log"],
-            stdout=write_fd,
-            stderr=write_fd,
-            bufsize=0,
-            close_fds=True)
         poll_thread = threading.Thread(target=self.poll_setup_status)
         poll_thread.setDaemon(True)
         poll_thread.start()
@@ -145,9 +140,12 @@ class TabHostedEngine(object):
                 self.widget.original_widget = self.get_status_widget()
                 self.main_loop.draw_screen()
                 return
-
-    def received_output(self, data):
-        self.output.set_text(self.output.text + data)
+            if "stopped" == self.get_hosted_engine_status():
+                os.system("echo '\n\n\n' >> %s" % self.setup_log_path)
+            self.output.set_text(subprocess.check_output(["tail", "-n", "30", self.setup_log_path]))
+            self.main_loop.draw_screen()
+            if "stopped" == self.get_hosted_engine_status():
+                return
 
     def get_status_widget(self):
         return urwid.Button(u"Hosted engine is running.")
