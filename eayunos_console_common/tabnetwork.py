@@ -4,6 +4,7 @@ import urwid
 import socket
 import inspect
 import ifconfig
+import subprocess
 
 class TabNetwork(object):
 
@@ -27,12 +28,21 @@ class TabNetwork(object):
         for interface in ifconfig.iterifs(physical=True):
             address_edit = urwid.Edit(u"Adress: ", str(interface.get_ip()))
             netmask_edit = urwid.Edit(u"Netmask: ", str(interface.get_netmask()))
+            try:
+                gateway = subprocess.check_output(
+                    "cat /etc/sysconfig/network-scripts/ifcfg-%s|grep -i gateway" % interface.name,
+                    shell=True)
+                gateway = gateway.split("=")[1].replace("\"", "").replace("'", "").strip()
+            except subprocess.CalledProcessError:
+                gateway = ""
+            gateway_edit = urwid.Edit(u"Gateway: ", gateway)
             apply_button = urwid.Button(u"Apply")
             ifs_info_widget.append(urwid.Pile([
                 urwid.Divider("-"),
                 urwid.Text(u"Name: " + interface.name),
                 address_edit,
                 netmask_edit,
+                gateway_edit,
                 urwid.Text(u"Status: " + ("up" if interface.is_up() else "down")),
                 apply_button,
             ]))
@@ -42,7 +52,8 @@ class TabNetwork(object):
                 self.on_if_apply,
                 user_arg=(interface.name,
                 address_edit,
-                netmask_edit))
+                netmask_edit,
+                gateway_edit))
         return ifs_info_widget
 
     def on_if_apply(self, button, if_info):
@@ -57,6 +68,7 @@ class TabNetwork(object):
                     + 'BOOTPROTO=static\n'
                     + 'IPADDR={}\n'.format(if_info[1].get_edit_text())
                     + 'PREFIX={}\n'.format(int(if_info[2].get_edit_text()))
+                    + 'GATEWAY={}\n'.format(if_info[3].get_edit_text())
             )
         os.system('/etc/init.d/network restart &>/dev/null')
         self.widget.if_update_finish()
