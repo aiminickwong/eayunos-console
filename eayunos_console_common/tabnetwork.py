@@ -19,9 +19,37 @@ class TabNetwork(object):
             hostname,
         ])
 
-        self.widget_list.extend(self.get_ifs_widgets())
+        ifs_widgets = self.get_ifs_widgets()
+        bridge_widgets = self.get_bridge_widgets()
+        if ifs_widgets:
+            self.widget_list.extend(ifs_widgets)
+        if bridge_widgets:
+            self.widget_list.extend(bridge_widgets)
 
         self.widget = WidgetWithSaveNicPopup(urwid.Pile(self.widget_list))
+
+    def get_bridge_widgets(self):
+        bridge_info_widgets = []
+        for bridge in ifconfig.iterifs(bridge=True):
+            try:
+                if_name = subprocess.check_output(
+                    "brctl show %s|grep %s" % (bridge.name, bridge.name),
+                    shell=True).split("\t")[-1].strip()
+                bridge_info_widgets.append(urwid.Pile([
+                    urwid.Divider("-"),
+                    urwid.Columns([
+                        ("weight", 1, urwid.Pile([urwid.Text(u"Nic: %s" % if_name)])),
+                        ("weight", 2, urwid.Pile([
+                            urwid.Text(u"Bridge: %s" % bridge.name),
+                            urwid.Text(u"Address: %s" % bridge.get_ip()),
+                            urwid.Text(u"Netmask: %s" % bridge.get_netmask()),
+                            urwid.Text(u"Gateway: %s" % self.config_gateway(bridge.name)),
+                        ])),
+                    ])
+                ]))
+            except subprocess.CalledProcessError:
+                continue
+        return bridge_info_widgets
 
     def get_ifs_widgets(self):
         ifs_info_widget = []
@@ -33,14 +61,7 @@ class TabNetwork(object):
                 pass
             address_edit = urwid.Edit(u"Adress: ", str(interface.get_ip()))
             netmask_edit = urwid.Edit(u"Netmask: ", str(interface.get_netmask()))
-            try:
-                gateway = subprocess.check_output(
-                    "cat /etc/sysconfig/network-scripts/ifcfg-%s|grep -i gateway" % interface.name,
-                    shell=True)
-                gateway = gateway.split("=")[1].replace("\"", "").replace("'", "").strip()
-            except subprocess.CalledProcessError:
-                gateway = ""
-            gateway_edit = urwid.Edit(u"Gateway: ", gateway)
+            gateway_edit = urwid.Edit(u"Gateway: ", self.config_gateway(interface.name))
             apply_button = urwid.Button(u"Apply")
             ifs_info_widget.append(urwid.Pile([
                 urwid.Divider("-"),
@@ -60,6 +81,16 @@ class TabNetwork(object):
                 netmask_edit,
                 gateway_edit))
         return ifs_info_widget
+
+    def config_gateway(self, name):
+        try:
+            gateway = subprocess.check_output(
+                "cat /etc/sysconfig/network-scripts/ifcfg-%s|grep -i gateway" % name,
+                shell=True)
+            gateway = gateway.split("=")[1].replace("\"", "").replace("'", "").strip()
+        except subprocess.CalledProcessError:
+            gateway = ""
+        return gateway
 
     def on_if_apply(self, button, if_info):
         self.widget.set_if_info(if_info)
