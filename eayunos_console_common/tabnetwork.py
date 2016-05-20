@@ -26,6 +26,11 @@ class TabNetwork(object):
     def get_ifs_widgets(self):
         ifs_info_widget = []
         for interface in ifconfig.iterifs(physical=True):
+            try:
+                subprocess.check_output("brctl show|grep %s" % interface.name, shell=True)
+                continue
+            except subprocess.CalledProcessError:
+                pass
             address_edit = urwid.Edit(u"Adress: ", str(interface.get_ip()))
             netmask_edit = urwid.Edit(u"Netmask: ", str(interface.get_netmask()))
             try:
