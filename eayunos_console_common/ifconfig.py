@@ -354,18 +354,21 @@ class Interface(object):
     netmask = property(get_netmask, set_netmask)
 
 
-def iterifs(physical=True):
+def iterifs(physical=True, bridge=False):
     ''' Iterate over all the interfaces in the system. If physical is
         true, then return only real physical interfaces (not 'lo', etc).'''
     net_files = os.listdir(SYSFS_NET_PATH)
     interfaces = set()
     virtual = set()
+    bridges = set()
     for d in net_files:
         path = os.path.join(SYSFS_NET_PATH, d)
         if not os.path.isdir(path):
             continue
         if not os.path.exists(os.path.join(path, b"device")):
             virtual.add(d)
+            if os.path.exists(os.path.join(path, b"bridge")):
+                bridges.add(d)
         interfaces.add(d)
 
     # Some virtual interfaces don't show up in the above search, for example,
@@ -387,7 +390,10 @@ def iterifs(physical=True):
             d = res[i:i+16].strip(b'\0')
             interfaces.add(d)
 
-    results = interfaces - virtual if physical else interfaces
+    if bridge:
+        results = bridges
+    else:
+        results = interfaces - virtual if physical else interfaces
     for d in results:
         yield Interface(d)
 
