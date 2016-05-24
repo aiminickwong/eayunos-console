@@ -25,7 +25,7 @@ class TabNetwork(object):
             self.widget_list.extend(ifs_widgets)
         if bridge_widgets:
             self.widget_list.extend(bridge_widgets)
-
+        #上面两个判断多余，直接self.widget_list.extend，只要保证ifs_widgets和bridge_widgets类型始终上list
         self.widget = WidgetWithSaveNicPopup(urwid.Pile(self.widget_list))
 
     def get_bridge_widgets(self):
@@ -76,10 +76,7 @@ class TabNetwork(object):
                 apply_button,
                 "click",
                 self.on_if_apply,
-                user_arg=(interface.name,
-                address_edit,
-                netmask_edit,
-                gateway_edit))
+                user_arg=(interface.name, address_edit, netmask_edit, gateway_edit))
         return ifs_info_widget
 
     def config_gateway(self, name):
@@ -114,7 +111,8 @@ class TabNetwork(object):
 class WidgetWithSaveNicPopup(urwid.PopUpLauncher):
 
     def __init__(self, widget):
-        self.__super.__init__(widget)
+        urwid.PopUpLauncher.__init__(self, widget)
+        # self.__super.__init__(widget)
 
     def create_pop_up(self):
         self.pop_up = NetworkSaveDialog(self.pop_up_info)
@@ -137,6 +135,7 @@ class NetworkSaveDialog(urwid.WidgetWrap):
     signals = ['close']
 
     def __init__(self, pop_up_info):
+        urwid.WidgetWrap.__init__(self, pop_up_info)
         self.pop_up_info = pop_up_info
         self.close_button = urwid.Button("OK")
         urwid.connect_signal(self.close_button, 'click',

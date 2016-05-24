@@ -37,7 +37,10 @@ class Product(object):
    # 生成信息组件
    def generateInfo(self):
       valid = 'admin'
-      if (self.get_username() == valid) and (self.get_password() == valid):
+      #### 由严峥修改
+      # if (self.get_username() == valid) and (self.get_password() == valid):
+      if valid == self.get_username() == self.get_password():
+      #### 由严峥修改
          # self.info 返回值类型是个列表
          #self.info = os.popen('subscription-manager orgs --username=admin --password=admin').readlines()
          self.info = os.popen('date').readlines()
@@ -49,6 +52,7 @@ class Product(object):
          for i in range(len(self.info)):
             text = self.info[i]
             self.info_txt += text
+         #上面这段可以直接用 self.info_txt.join(self.info)
 
          # 新的组件：显示的是产品信息
          self.txtInfo = urwid.Text(self.info_txt, align = 'center')
