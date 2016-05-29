@@ -35,7 +35,29 @@ class TabHostedEngine(object):
         elif hosted_engine_status == "running":
             self.widget.original_widget = self.get_status_widget()
 
+    def update_pre_setup_widget(self, button, selected):
+        if selected:
+            self.pre_setup_widget.original_widget = self.get_new_setup_widget()
+        else:
+            self.pre_setup_widget.original_widget = self.get_existing_setup_widget()
+
     def get_pre_setup_widget(self):
+        self.pre_setup_option = []
+        self.pre_setup_widget = urwid.AttrMap(self.get_new_setup_widget(), "")
+        #self.pre_setup_widget.original_widget=self.get_new_setup_widget()
+        return urwid.Pile([
+            urwid.Text(u"Choose an option to setup:"),
+            urwid.Divider(),
+            urwid.GridFlow([
+                urwid.RadioButton(self.pre_setup_option, u"New hosted engine setup",
+                    on_state_change=self.update_pre_setup_widget),
+                urwid.RadioButton(self.pre_setup_option, u"Existing hosted engine setup"),
+            ], 33, 2, 0, 'left'),
+            urwid.Divider(),
+            self.pre_setup_widget,
+        ])
+
+    def get_new_setup_widget(self):
         blank = urwid.Divider()
         self.w_gateway = urwid.Edit(u"Gateway: ", self.get_default_gw())
         self.w_bridge_if = []
@@ -47,6 +69,7 @@ class TabHostedEngine(object):
         self.w_storage_type = []
         self.w_storage_connection = urwid.Edit(u"Storage connection: ")
         return urwid.Pile([
+            urwid.Divider("-"),
             urwid.Text("Setup configuration: "),
             urwid.Divider("-"),
             blank,
@@ -66,6 +89,27 @@ class TabHostedEngine(object):
             urwid.Button("Begin setup", on_press=self.begin_setup),
         ])
 
+    def get_existing_setup_widget(self):
+        blank = urwid.Divider()
+        self.w_engine_admin_password = urwid.Edit(u"Engine admin@internal password: ", mask="*")
+        self.w_host_id = urwid.IntEdit(u"Host Id: ", "")
+        self.w_storage_type = []
+        self.w_storage_connection = urwid.Edit(u"Storage connection: ")
+        return urwid.Pile([
+            urwid.Divider("-"),
+            urwid.Text("Setup configuration: "),
+            urwid.Divider("-"),
+            blank,
+            self.w_engine_admin_password,
+            blank,
+            self.w_host_id,
+            blank,
+            self.genRadioButton(u"Storage type: ", ["nfs3", "iscsi", "fc"], self.w_storage_type),
+            self.w_storage_connection,
+            blank,
+            urwid.Button("Begin setup", on_press=self.begin_setup_existing),
+        ])
+
     def genRadioButton(self, caption_text, options, selected_value):
         return urwid.Columns([
                 ('pack', urwid.Text(caption_text)),
@@ -76,7 +120,6 @@ class TabHostedEngine(object):
 
     def begin_setup(self, button):
         if self.validate_setup_input():
-            script_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
             os.system("cp /etc/eayunos-console-node/answers.conf %s" % self.answers_path)
             self.update_answers_file("HEN_GATEWAY", self.w_gateway.get_edit_text())
             self.update_answers_file("HEN_BRIDGE_IF", self.get_radio_option(self.w_bridge_if))
@@ -96,12 +139,26 @@ class TabHostedEngine(object):
             self.update_answers_file("HEVD_SPICE_PKI_SUBJECT_CN", host_hostname)
             host_vcpu_count = psutil.cpu_count(logical=True)
             self.update_answers_file("HEV_VM_VCPUS", str(min(max(min(2, host_vcpu_count), host_vcpu_count/2), 4)))
-            os.system("screen -X -S hosted_engine_setup quit")
-            os.system("screen -dmS hosted_engine_setup")
-            os.system("rm -f %s" % self.setup_log_path)
-            os.system("touch %s" % self.setup_log_path)
-            os.system("screen -S hosted_engine_setup -X stuff 'ovirt-hosted-engine-setup --config-append=%s &>%s\n'" % (self.answers_path, self.setup_log_path))
-            self.widget.original_widget = self.get_setup_widget()
+            self.begin_setup_screen()
+
+    def begin_setup_existing(self, button):
+        if self.validate_setup_input_existing():
+            os.system("cp /etc/eayunos-console-node/answers_add.conf %s" % self.answers_path)
+            self.update_answers_file("HEE_ADMIN_PASSWORD", self.w_engine_admin_password.get_edit_text())
+            self.update_answers_file("HEE_APP_HOSTNAME", socket.gethostname())
+            self.update_answers_file("HES_DOMAIN_TYPE", self.get_radio_option(self.w_storage_type))
+            self.update_answers_file("HES_STORAGE_DOMAIN_CONNECTION", self.w_storage_connection.get_edit_text())
+            self.update_answers_file("HEN_BRIDGE_IF", self.get_radio_option(self.w_bridge_if))
+            self.update_answers_file("HES_HOST_ID", self.w_host_id.get_edit_text())
+            self.begin_setup_screen()
+
+    def begin_setup_screen(self):
+        os.system("screen -X -S hosted_engine_setup quit")
+        os.system("screen -dmS hosted_engine_setup")
+        os.system("rm -f %s" % self.setup_log_path)
+        os.system("touch %s" % self.setup_log_path)
+        os.system("screen -S hosted_engine_setup -X stuff 'ovirt-hosted-engine-setup --config-append=%s &>%s\n'" % (self.answers_path, self.setup_log_path))
+        self.widget.original_widget = self.get_setup_widget()
 
     def get_radio_option(self, radiobutton_widget):
         for button in radiobutton_widget:
@@ -117,6 +174,10 @@ class TabHostedEngine(object):
                 return ovs_dir + f
 
     def validate_setup_input(self):
+        # TODO
+        return True
+
+    def validate_setup_input_existing(self):
         # TODO
         return True
 
