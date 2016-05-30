@@ -16,6 +16,7 @@ os.sys.path.insert(
             os.path.abspath(
                 inspect.getfile(inspect.currentframe())))))
 from eayunos_console_common import ifconfig
+from vdsm import vdscli
 
 
 class TabHostedEngine(object):
@@ -67,7 +68,11 @@ class TabHostedEngine(object):
         self.w_engine_root_password = urwid.Edit(u"Engine root user password: ", mask="*")
         self.w_engine_admin_password = urwid.Edit(u"Engine admin@internal password: ", mask="*")
         self.w_storage_type = []
-        self.w_storage_connection = urwid.Edit(u"Storage connection: ")
+        self.w_lun_list = []
+        self.w_storage_connection_nfs = urwid.Edit(u"Storage connection: ")
+        self.w_storage_connection_iscsi = urwid.Text(u"To be implemented.")
+        self.w_storage_connection_fc = self.genRadioButton(u"Storage LUN: ", self.get_fc_lun_tuple_list(), self.w_lun_list)
+        self.w_storage_connection = urwid.Pile([self.w_storage_connection_nfs])
         return urwid.Pile([
             urwid.Divider("-"),
             urwid.Text("Setup configuration: "),
@@ -75,7 +80,7 @@ class TabHostedEngine(object):
             blank,
             self.w_gateway,
             self.genRadioButton(u"Interface to set eayunos bridge on: ",
-                [nic.name for nic in ifconfig.iterifs()], self.w_bridge_if),
+                [(nic.name, None) for nic in ifconfig.iterifs()], self.w_bridge_if),
             blank,
             self.w_engine_hostname,
             self.w_engine_static_cidr,
@@ -83,7 +88,7 @@ class TabHostedEngine(object):
             self.w_engine_root_password,
             self.w_engine_admin_password,
             blank,
-            self.genRadioButton(u"Storage type: ", ["nfs3", "iscsi", "fc"], self.w_storage_type),
+            self.get_storage_type_options(),
             self.w_storage_connection,
             blank,
             urwid.Button("Begin setup", on_press=self.begin_setup),
@@ -94,7 +99,11 @@ class TabHostedEngine(object):
         self.w_engine_admin_password = urwid.Edit(u"Engine admin@internal password: ", mask="*")
         self.w_host_id = urwid.IntEdit(u"Host Id: ", "")
         self.w_storage_type = []
-        self.w_storage_connection = urwid.Edit(u"Storage connection: ")
+        self.w_lun_list = []
+        self.w_storage_connection_nfs = urwid.Edit(u"Storage connection: ")
+        self.w_storage_connection_iscsi = urwid.Text(u"To be implemented.")
+        self.w_storage_connection_fc = self.genRadioButton(u"Storage LUN: ", self.get_fc_lun_tuple_list(), self.w_lun_list)
+        self.w_storage_connection = urwid.Pile([self.w_storage_connection_nfs])
         return urwid.Pile([
             urwid.Divider("-"),
             urwid.Text("Setup configuration: "),
@@ -104,18 +113,25 @@ class TabHostedEngine(object):
             blank,
             self.w_host_id,
             blank,
-            self.genRadioButton(u"Storage type: ", ["nfs3", "iscsi", "fc"], self.w_storage_type),
+            self.get_storage_type_options(),
             self.w_storage_connection,
             blank,
             urwid.Button("Begin setup", on_press=self.begin_setup_existing),
         ])
 
-    def genRadioButton(self, caption_text, options, selected_value):
+    def get_storage_type_options(self):
+        return self.genRadioButton(u"Storage type: ", [
+                ("nfs3", self.update_storage_domain_nfs),
+                ("iscsi", self.update_storage_domain_iscsi),
+                ("fc", self.update_storage_domain_fc)
+            ], self.w_storage_type)
+
+    def genRadioButton(self, caption_text, options, radiobutton_group):
         return urwid.Columns([
                 ('pack', urwid.Text(caption_text)),
                 urwid.GridFlow([
-                    urwid.RadioButton(selected_value, txt) for txt in options
-                    ], 13, 2, 0, 'left'),
+                    urwid.RadioButton(radiobutton_group, option[0], on_state_change=option[1])
+                    for option in options], 30, 2, 0, 'left'),
             ])
 
     def begin_setup(self, button):
@@ -127,7 +143,7 @@ class TabHostedEngine(object):
             host_hostname = socket.gethostname()
             self.update_answers_file("HEE_APP_HOSTNAME", host_hostname)
             self.update_answers_file("HES_DOMAIN_TYPE", self.get_radio_option(self.w_storage_type))
-            self.update_answers_file("HES_STORAGE_DOMAIN_CONNECTION", self.w_storage_connection.get_edit_text())
+            self.update_storage_domain_config()
             self.update_answers_file("HEV_CLOUDINIT_ROOT_PWD", self.w_engine_root_password.get_edit_text())
             self.update_answers_file("HEV_VM_MAC_ADDR", self.w_engine_mac_addr.get_edit_text())
             self.update_answers_file("HEV_OVF_ARCHIVE", self.get_ova_file("/usr/share/ovirt-engine-appliance/"))
@@ -147,7 +163,7 @@ class TabHostedEngine(object):
             self.update_answers_file("HEE_ADMIN_PASSWORD", self.w_engine_admin_password.get_edit_text())
             self.update_answers_file("HEE_APP_HOSTNAME", socket.gethostname())
             self.update_answers_file("HES_DOMAIN_TYPE", self.get_radio_option(self.w_storage_type))
-            self.update_answers_file("HES_STORAGE_DOMAIN_CONNECTION", self.w_storage_connection.get_edit_text())
+            self.update_storage_domain_config()
             self.update_answers_file("HEN_BRIDGE_IF", self.get_radio_option(self.w_bridge_if))
             self.update_answers_file("HES_HOST_ID", self.w_host_id.get_edit_text())
             self.begin_setup_screen()
@@ -160,13 +176,48 @@ class TabHostedEngine(object):
         os.system("screen -S hosted_engine_setup -X stuff 'ovirt-hosted-engine-setup --config-append=%s &>%s\n'" % (self.answers_path, self.setup_log_path))
         self.widget.original_widget = self.get_setup_widget()
 
-    def get_radio_option(self, radiobutton_widget):
-        for button in radiobutton_widget:
+    def get_radio_option(self, radiobutton_group):
+        for button in radiobutton_group:
             if button.get_state():
                 return button.get_label()
 
+    def update_storage_domain_nfs(self, button, selected):
+        if selected:
+            self.w_storage_connection._set_widget_list([self.w_storage_connection_nfs])
+
+    def update_storage_domain_iscsi(self, button, selected):
+        if selected:
+            self.w_storage_connection._set_widget_list([self.w_storage_connection_iscsi])
+
+    def update_storage_domain_fc(self, button, selected):
+        if selected:
+            self.w_storage_connection._set_widget_list([self.w_storage_connection_fc])
+
+    def get_fc_lun_tuple_list(self):
+        cli = vdscli.connect(timeout=900)
+        fc_lun_list = []
+        FC_DOMAIN = 2
+        devices = cli.getDeviceList(FC_DOMAIN)
+        if devices['status']['code'] != 0:
+            raise RuntimeError(devices['status']['message'])
+        for device in devices['devList']:
+            device_info = "%s  %sGiB\n%s %s  status: %s" % (
+                    device["GUID"], int(device['capacity']) / pow(2, 30),
+                    device['vendorID'], device['productID'], device["status"],
+                )
+            fc_lun_list.append((device_info, None))
+        return fc_lun_list
+
     def update_answers_file(self, key, value):
         os.system("sed -i s/{%s}/%s/ %s" % (key, value.replace("/","\\\/"), self.answers_path))
+
+    def update_storage_domain_config(self):
+        if self.get_radio_option(self.w_storage_type) == "nfs3":
+            self.update_answers_file("HES_STORAGE_DOMAIN_CONNECTION", self.w_storage_connection.get_edit_text())
+            self.update_answers_file("HES_LUN_ID", "none:None")
+        elif self.get_radio_option(self.w_storage_type) == "fc":
+            self.update_answers_file("HES_LUN_ID", self.get_radio_option(self.w_lun_list).split("  ")[0])
+            self.update_answers_file("HES_STORAGE_DOMAIN_CONNECTION", "none:None")
 
     def get_ova_file(self, ovs_dir):
         for f in os.listdir(ovs_dir):
@@ -186,7 +237,7 @@ class TabHostedEngine(object):
             header=urwid.Text("Setup output:"),
             body=urwid.Filler(self.output, valign="bottom"),
             footer=urwid.Button("percentage"),
-            focus_part="header"), 30)
+            focus_part="header"), 50)
         widget.set_focus("footer")
         poll_thread = threading.Thread(target=self.poll_setup_status)
         poll_thread.setDaemon(True)

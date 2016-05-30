@@ -32,6 +32,7 @@ Summary:    tui based setup and management ui for eayunos host
 Group:      ovirt-engine-third-party
 Requires:	ovirt-engine-appliance
 Requires:	ovirt-hosted-engine-setup
+Requires:	vdsm
 
 %description node
 tui based setup and management ui for eayunos host
