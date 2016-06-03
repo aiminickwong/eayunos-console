@@ -2,7 +2,7 @@
 # _*_ coding:utf-8 _*_
 
 import urwid
-from eayunos_console_common import ConfigTab, TabNetwork
+from eayunos_console_common import ConfigTab, TabNetwork, TabHostname
 from eayunos_console_manager import Product, LogIn, CheckBox
 
 palette = [
@@ -21,6 +21,7 @@ l = LogIn(loop, p)
 c = CheckBox(loop)
 config_tab_list = [
     TabNetwork(loop),
+    TabHostname(loop),
 ]
 
 

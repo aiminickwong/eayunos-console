@@ -4,7 +4,7 @@
 import sys
 import signal
 import urwid
-from eayunos_console_common import ConfigTab, TabNetwork
+from eayunos_console_common import ConfigTab, TabNetwork, TabHostname
 from eayunos_console_node import TabHostedEngine, TabNFS
 
 def handler(signum, frame):
@@ -20,6 +20,7 @@ loop = urwid.MainLoop(None, palette, pop_ups=True)
 config_tab_list = [
     TabNetwork(loop),
     TabHostedEngine(loop),
+    TabHostname(loop),
     TabNFS(loop),
 ]
 loop.widget = ConfigTab(config_tab_list)
