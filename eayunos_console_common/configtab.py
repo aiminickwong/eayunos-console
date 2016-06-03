@@ -41,3 +41,15 @@ class ConfigTab(urwid.Filler):
                 self.tab_index += 1
                 self.tab_content.original_widget = self.tab_map[self.tab_names[self.tab_index]]
         urwid.Filler.keypress(self, size, key)
+
+
+class SimplePopupDialog(urwid.WidgetWrap):
+
+    signals = ["close"]
+    def __init__(self, text):
+        close_button = urwid.Button("OK")
+        urwid.connect_signal(close_button, "click",
+            lambda button:self._emit("close"))
+        pile = urwid.Pile([urwid.Text(text), close_button])
+        fill = urwid.Filler(pile)
+        self.__super.__init__(urwid.AttrWrap(fill, ""))
