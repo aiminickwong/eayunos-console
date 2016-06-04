@@ -15,6 +15,8 @@ class TabNFS(object):
         widget_lines = []
         with open(self.exports_file) as f:
             for line in f.readlines():
+                if not line.strip():
+                    continue
                 items = line.split()
                 widget_items = [urwid.Edit("Path: ", items[0]), urwid.Edit("Param: ", items[1])]
                 widget_items.append(urwid.Button("Delete", on_press=self.delete_line, user_data=widget_items))
