@@ -173,7 +173,7 @@ class TabHostedEngine(object):
         os.system("screen -dmS hosted_engine_setup")
         os.system("rm -f %s" % self.setup_log_path)
         os.system("touch %s" % self.setup_log_path)
-        os.system("screen -S hosted_engine_setup -X stuff 'ovirt-hosted-engine-setup --config-append=%s &>%s\n'" % (self.answers_path, self.setup_log_path))
+        os.system("screen -S hosted_engine_setup -X stuff 'ovirt-hosted-engine-setup --config-append=%s |tee %s\n'" % (self.answers_path, self.setup_log_path))
         self.widget.original_widget = self.get_setup_widget()
 
     def get_radio_option(self, radiobutton_group):
