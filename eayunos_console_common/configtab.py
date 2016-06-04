@@ -53,3 +53,19 @@ class SimplePopupDialog(urwid.WidgetWrap):
         pile = urwid.Pile([urwid.Text(text), close_button])
         fill = urwid.Filler(pile)
         self.__super.__init__(urwid.AttrWrap(fill, ""))
+
+
+class SimplePopupLauncher(urwid.PopUpLauncher):
+
+    def __init__(self, w, text):
+        self.text = text
+        self.__super.__init__(w);
+
+    def create_pop_up(self):
+        pop_up = SimplePopupDialog(self.text)
+        urwid.connect_signal(pop_up, 'close',
+            lambda button: self.close_pop_up())
+        return pop_up
+
+    def get_pop_up_parameters(self):
+        return {'left':0, 'top':1, 'overlay_width':32, 'overlay_height':7}

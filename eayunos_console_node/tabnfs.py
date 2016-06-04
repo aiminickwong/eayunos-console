@@ -1,6 +1,6 @@
 import os
 import urwid
-from eayunos_console_common.configtab import SimplePopupDialog
+from eayunos_console_common.configtab import SimplePopupLauncher, SimplePopupDialog
 
 class TabNFS(object):
 
@@ -9,7 +9,7 @@ class TabNFS(object):
         self.name = u"NFS Config"
         self.exports_file = "/etc/exports"
         self.w_entries = self.load_entries()
-        self.widget = SimplePopupLauncher(self.get_entry_widget())
+        self.widget = SimplePopupLauncher(self.get_entry_widget(), "Save success.")
 
     def load_entries(self):
         widget_lines = []
@@ -50,15 +50,3 @@ class TabNFS(object):
         os.system("service nfs start")
         os.system("exportfs -r")
         self.widget.open_pop_up()
-
-
-class SimplePopupLauncher(urwid.PopUpLauncher):
-
-    def create_pop_up(self):
-        pop_up = SimplePopupDialog("Save success.")
-        urwid.connect_signal(pop_up, 'close',
-            lambda button: self.close_pop_up())
-        return pop_up
-
-    def get_pop_up_parameters(self):
-        return {'left':0, 'top':1, 'overlay_width':32, 'overlay_height':7}

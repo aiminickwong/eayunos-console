@@ -6,7 +6,7 @@ import socket
 import inspect
 import ifconfig
 import subprocess
-from configtab import SimplePopupDialog
+from configtab import SimplePopupLauncher, SimplePopupDialog
 
 class TabNetwork(object):
 
@@ -16,7 +16,9 @@ class TabNetwork(object):
         self.widget_list = []
 
         self.hostname = urwid.Edit(u"Hostname: ", socket.gethostname())
-        self.hostname_popup = SimplePopupLauncher(urwid.Columns(([self.hostname, urwid.Button(u"Save", on_press=self.save_hostname)])))
+        self.hostname_popup = SimplePopupLauncher(
+            urwid.Columns(([self.hostname, urwid.Button(u"Save", on_press=self.save_hostname)])),
+            "Save success.")
         self.widget_list.extend([
             urwid.Divider("-"),
             self.hostname_popup,
@@ -163,15 +165,3 @@ class NetworkSaveDialog(urwid.WidgetWrap):
                         urwid.Text(self.pop_up_info[0] + " updated sucessfully!"),
                         self.close_button,
                     ])), 'popbg'))
-
-
-class SimplePopupLauncher(urwid.PopUpLauncher):
-
-    def create_pop_up(self):
-        pop_up = SimplePopupDialog("Save success.")
-        urwid.connect_signal(pop_up, 'close',
-            lambda button: self.close_pop_up())
-        return pop_up
-
-    def get_pop_up_parameters(self):
-        return {'left':0, 'top':1, 'overlay_width':32, 'overlay_height':7}
