@@ -6,6 +6,7 @@ import socket
 import inspect
 import ifconfig
 import subprocess
+from configtab import SimplePopupDialog
 
 class TabNetwork(object):
 
@@ -14,10 +15,11 @@ class TabNetwork(object):
         self.name = u"NetWork"
         self.widget_list = []
 
-        hostname = urwid.Edit(u"Hostname: ", socket.gethostname())
+        self.hostname = urwid.Edit(u"Hostname: ", socket.gethostname())
+        self.hostname_popup = SimplePopupLauncher(urwid.Columns(([self.hostname, urwid.Button(u"Save", on_press=self.save_hostname)])))
         self.widget_list.extend([
             urwid.Divider("-"),
-            hostname,
+            self.hostname_popup,
         ])
 
         ifs_widgets = self.get_ifs_widgets()
@@ -28,6 +30,11 @@ class TabNetwork(object):
             self.widget_list.extend(bridge_widgets)
         #上面两个判断多余，直接self.widget_list.extend，只要保证ifs_widgets和bridge_widgets类型始终上list
         self.widget = WidgetWithSaveNicPopup(urwid.Pile(self.widget_list))
+
+    def save_hostname(self, button):
+        os.system("hostname %s" % self.hostname.edit_text)
+        os.system("echo 'hostname %s' > /etc/sysconfig/network" % self.hostname.edit_text)
+        self.hostname_popup.open_pop_up()
 
     def get_bridge_widgets(self):
         bridge_info_widgets = []
@@ -157,3 +164,14 @@ class NetworkSaveDialog(urwid.WidgetWrap):
                         self.close_button,
                     ])), 'popbg'))
 
+
+class SimplePopupLauncher(urwid.PopUpLauncher):
+
+    def create_pop_up(self):
+        pop_up = SimplePopupDialog("Save success.")
+        urwid.connect_signal(pop_up, 'close',
+            lambda button: self.close_pop_up())
+        return pop_up
+
+    def get_pop_up_parameters(self):
+        return {'left':0, 'top':1, 'overlay_width':32, 'overlay_height':7}
