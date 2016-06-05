@@ -115,6 +115,7 @@ class TabNetwork(object):
                     + 'IPADDR={}\n'.format(if_info[1].get_edit_text())
                     + 'PREFIX={}\n'.format(int(if_info[2].get_edit_text()))
                     + 'GATEWAY={}\n'.format(if_info[3].get_edit_text())
+                    + 'ONBOOT=yes\n'
             )
         os.system('/etc/init.d/network restart &>/dev/null')
         self.widget.if_update_finish()
