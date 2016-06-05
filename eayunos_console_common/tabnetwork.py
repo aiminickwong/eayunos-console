@@ -48,7 +48,10 @@ class TabNetwork(object):
                 bridge_info_widgets.append(urwid.Pile([
                     urwid.Divider("-"),
                     urwid.Columns([
-                        ("weight", 1, urwid.Pile([urwid.Text(u"Nic: %s" % if_name)])),
+                        ("weight", 1, urwid.Pile([
+                            urwid.Text(u"Name: %s" % if_name),
+                            urwid.Text(u"Status: %s" % ("up" if ifconfig.Interface(if_name).is_up() else "down")),
+                        ])),
                         ("weight", 2, urwid.Pile([
                             urwid.Text(u"Bridge: %s" % bridge.name),
                             urwid.Text(u"Address: %s" % bridge.get_ip()),
@@ -112,6 +115,7 @@ class TabNetwork(object):
                     + 'IPADDR={}\n'.format(if_info[1].get_edit_text())
                     + 'PREFIX={}\n'.format(int(if_info[2].get_edit_text()))
                     + 'GATEWAY={}\n'.format(if_info[3].get_edit_text())
+                    + 'ONBOOT=yes\n'
             )
         os.system('/etc/init.d/network restart &>/dev/null')
         self.widget.if_update_finish()

@@ -98,6 +98,7 @@ class TabHostedEngine(object):
         blank = urwid.Divider()
         self.w_engine_admin_password = urwid.Edit(u"Engine admin@internal password: ", mask="*")
         self.w_host_id = urwid.IntEdit(u"Host Id: ", "")
+        self.w_bridge_if = []
         self.w_storage_type = []
         self.w_lun_list = []
         self.w_storage_connection_nfs = urwid.Edit(u"Storage connection: ")
@@ -108,6 +109,9 @@ class TabHostedEngine(object):
             urwid.Divider("-"),
             urwid.Text("Setup configuration: "),
             urwid.Divider("-"),
+            blank,
+            self.genRadioButton(u"Interface to set eayunos bridge on: ",
+                [(nic.name, None) for nic in ifconfig.iterifs()], self.w_bridge_if),
             blank,
             self.w_engine_admin_password,
             blank,
@@ -299,5 +303,5 @@ class TabHostedEngine(object):
                         )
                     )
                     break
-        return gateway
+        return str(gateway)
 
