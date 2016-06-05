@@ -49,6 +49,7 @@ class TabNFS(object):
             path = entry[0].edit_text.strip()
             param = entry[1].edit_text.strip()
             if path and param:
+                os.system("chkconfig nfs-server on")
                 f.write("%s %s\n" % (path, param))
                 os.system("mkdir -p %s" % path)
                 os.system("chown -R vdsm:kvm %s" % path)
