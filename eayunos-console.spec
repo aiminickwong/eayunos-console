@@ -25,7 +25,9 @@ mkdir -p %{buildroot}/etc/eayunos-console-node
 mv eayunos_console_node/answers.conf %{buildroot}/etc/eayunos-console-node
 cp -r eayunos_console_node %{buildroot}/usr/lib/python2.7/site-packages
 cp -r eayunos_console_common %{buildroot}/usr/lib/python2.7/site-packages
+cp -r eayunos_console_manager %{buildroot}/usr/lib/python2.7/site-packages
 cp node-console %{buildroot}/usr/sbin
+cp manager-console %{buildroot}/usr/sbin
 
 %package node
 Summary:    tui based setup and management ui for eayunos host
@@ -37,15 +39,29 @@ Requires:	vdsm
 %description node
 tui based setup and management ui for eayunos host
 
-%clean node
-rm -rf %{buildroot}
-
 %files node
 %defattr(-,root,root,-)
 /usr/lib/python2.7/site-packages/eayunos_console_node
 /usr/lib/python2.7/site-packages/eayunos_console_common
 /etc/eayunos-console-node/answers.conf
 %attr(0755,root,root) /usr/sbin/node-console
+
+%package manager
+Summary:    tui based setup and management ui for eayunos manager
+Group:      ovirt-engine-third-party
+Requires:       ovirt-engine
+
+%description manager
+tui based setup and management ui for eayunos manager
+
+%files manager
+%defattr(-,root,root,-)
+/usr/lib/python2.7/site-packages/eayunos_console_manager
+/usr/lib/python2.7/site-packages/eayunos_console_common
+%attr(0755,root,root) /usr/sbin/manager-console
+
+%clean
+rm -rf %{buildroot}
 
 %changelog
 
