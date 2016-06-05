@@ -46,8 +46,12 @@ class TabNFS(object):
     def save(self, button):
         f = open(self.exports_file,"w")
         for entry in self.w_entries:
-            if entry[0].edit_text.strip() and entry[1].edit_text.strip():
-                f.write("%s %s\n" % (entry[0].edit_text, entry[1].edit_text))
+            path = entry[0].edit_text.strip()
+            param = entry[1].edit_text.strip()
+            if path and param:
+                f.write("%s %s\n" % (path, param))
+                os.system("mkdir -p %s" % path)
+                os.system("chown -R vdsm:kvm %s" % path)
         f.close()
         os.system("service nfs start")
         os.system("exportfs -r")
