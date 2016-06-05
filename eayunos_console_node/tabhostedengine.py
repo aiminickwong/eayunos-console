@@ -303,5 +303,5 @@ class TabHostedEngine(object):
                         )
                     )
                     break
-        return gateway
+        return str(gateway)
 
