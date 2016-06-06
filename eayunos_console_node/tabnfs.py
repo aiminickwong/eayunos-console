@@ -49,11 +49,11 @@ class TabNFS(object):
             path = entry[0].edit_text.strip()
             param = entry[1].edit_text.strip()
             if path and param:
-                os.system("chkconfig nfs-server on")
+                os.system("chkconfig nfs-server on &>/dev/null")
                 f.write("%s %s\n" % (path, param))
                 os.system("mkdir -p %s" % path)
                 os.system("chown -R vdsm:kvm %s" % path)
         f.close()
-        os.system("service nfs start")
+        os.system("service nfs start &>/dev/null")
         os.system("exportfs -r")
         self.widget.open_pop_up()
