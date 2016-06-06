@@ -198,6 +198,12 @@ class TabHostedEngine(object):
             self.w_storage_connection._set_widget_list([self.w_storage_connection_fc])
 
     def get_fc_lun_tuple_list(self):
+        # workaround for vdsm check before use vdscli:
+        if os.system("service vdsmd status|grep 'active (running)' &>/dev/null"):
+            os.system("service sanlock stop")
+            os.system("service libvirtd stop")
+            os.system("service supervdsmd stop")
+            os.system("vdsm-tool configure")
         cli = vdscli.connect(timeout=900)
         fc_lun_list = []
         FC_DOMAIN = 2
