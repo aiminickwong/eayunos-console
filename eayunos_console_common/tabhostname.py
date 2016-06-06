@@ -43,6 +43,7 @@ class TabHostname(object):
 
     def save(self, button):
         f = open(self.hosts_file,"w")
+        # 用with ... as f语句就不用下面的f.close了
         for entry in self.w_entries:
             if entry[0].edit_text.strip() and entry[1].edit_text.strip():
                 f.write("%s %s\n" % (entry[0].edit_text, entry[1].edit_text))
