@@ -217,7 +217,7 @@ class TabHostedEngine(object):
 
     def update_storage_domain_config(self):
         if self.get_radio_option(self.w_storage_type) == "nfs3":
-            self.update_answers_file("HES_STORAGE_DOMAIN_CONNECTION", self.w_storage_connection.get_edit_text())
+            self.update_answers_file("HES_STORAGE_DOMAIN_CONNECTION", self.w_storage_connection_nfs.get_edit_text())
             self.update_answers_file("HES_LUN_ID", "none:None")
         elif self.get_radio_option(self.w_storage_type) == "fc":
             self.update_answers_file("HES_LUN_ID", self.get_radio_option(self.w_lun_list).split("  ")[0])
