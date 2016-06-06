@@ -17,6 +17,8 @@ os.sys.path.insert(
                 inspect.getfile(inspect.currentframe())))))
 from eayunos_console_common import ifconfig
 from vdsm import vdscli
+import errno
+from socket import error as socket_error
 
 
 class TabHostedEngine(object):
@@ -204,10 +206,20 @@ class TabHostedEngine(object):
             os.system("service libvirtd stop")
             os.system("service supervdsmd stop")
             os.system("vdsm-tool configure")
-        cli = vdscli.connect(timeout=900)
+            os.system("service vdsmd restart")
+        connecting = True
         fc_lun_list = []
         FC_DOMAIN = 2
-        devices = cli.getDeviceList(FC_DOMAIN)
+        while connecting:
+            try:
+                cli = vdscli.connect(timeout=900)
+                devices = cli.getDeviceList(FC_DOMAIN)
+                connecting = False
+            except socket_error as serr:
+                if serr.errno == errno.ECONNREFUSED:
+                    time.sleep(2)
+                else:
+                    raise serr
         if devices['status']['code'] != 0:
             raise RuntimeError(devices['status']['message'])
         for device in devices['devList']:
