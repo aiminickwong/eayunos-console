@@ -19,6 +19,8 @@ os.sys.path.insert(
                 inspect.getfile(inspect.currentframe())))))
 from eayunos_console_common import ifconfig
 from vdsm import vdscli
+import errno
+from socket import error as socket_error
 
 
 class TabHostedEngine(object):
@@ -201,11 +203,28 @@ class TabHostedEngine(object):
             self.w_storage_connection._set_widget_list([self.w_storage_connection_fc])
 
     def get_fc_lun_tuple_list(self):
-        cli = vdscli.connect(timeout=900)
+        # workaround for vdsm check before use vdscli:
+        if os.system("service vdsmd status|grep 'active (running)' &>/dev/null"):
+            os.system("service sanlock stop")
+            os.system("service libvirtd stop")
+            os.system("service supervdsmd stop")
+            os.system("vdsm-tool configure")
+            os.system("service vdsmd restart")
+        connecting = True
         fc_lun_list = []
         FC_DOMAIN = 2
         # 长量尽量写在文件的上面，或者写在另外一个py文件里
         devices = cli.getDeviceList(FC_DOMAIN)
+        while connecting:
+            try:
+                cli = vdscli.connect(timeout=900)
+                devices = cli.getDeviceList(FC_DOMAIN)
+                connecting = False
+            except socket_error as serr:
+                if serr.errno == errno.ECONNREFUSED:
+                    time.sleep(2)
+                else:
+                    raise serr
         if devices['status']['code'] != 0:
             # if devices['status']['code']即可
             raise RuntimeError(devices['status']['message'])
@@ -222,7 +241,7 @@ class TabHostedEngine(object):
 
     def update_storage_domain_config(self):
         if self.get_radio_option(self.w_storage_type) == "nfs3":
-            self.update_answers_file("HES_STORAGE_DOMAIN_CONNECTION", self.w_storage_connection.get_edit_text())
+            self.update_answers_file("HES_STORAGE_DOMAIN_CONNECTION", self.w_storage_connection_nfs.get_edit_text())
             self.update_answers_file("HES_LUN_ID", "none:None")
         elif self.get_radio_option(self.w_storage_type) == "fc":
             self.update_answers_file("HES_LUN_ID", self.get_radio_option(self.w_lun_list).split("  ")[0])
