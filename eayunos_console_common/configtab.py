@@ -1,4 +1,7 @@
+#coding=utf-8
+
 import urwid
+
 
 class ConfigTab(urwid.Filler):
 
@@ -19,6 +22,7 @@ class ConfigTab(urwid.Filler):
         for tab in tabs:
             self.tab_index += 1
             self.tab_names[self.tab_index] = tab.name
+            # 这里的self.tab_names可以在__init__时直接初始化成[None]，然后这句直接用self.tab_names.append(tab.name)
             self.tab_map[tab.name] = tab.widget
             button = urwid.Button(tab.name)
             urwid.connect_signal(button, 'click', self.tab_mouse_chosen)
@@ -30,9 +34,11 @@ class ConfigTab(urwid.Filler):
     def tab_mouse_chosen(self, button):
         tab_name = button.get_label()
         self.tab_index = self.tab_names.index(tab_name)
+        # 上面这句是否多余？
         self.tab_content.original_widget = self.tab_map[tab_name]
 
     def keypress(self, size, key):
+        # 这个方法没有被调用过，是还没做完吗？
         if self.tab_list_widget == self.column.focus:
             if key == 'up' and self.tab_index > 1:
                 self.tab_index -= 1
@@ -49,7 +55,7 @@ class SimplePopupDialog(urwid.WidgetWrap):
     def __init__(self, text):
         close_button = urwid.Button("OK")
         urwid.connect_signal(close_button, "click",
-            lambda button:self._emit("close"))
+            lambda button: self._emit("close"))
         pile = urwid.Pile([urwid.Text(text), close_button])
         fill = urwid.Filler(pile)
         self.__super.__init__(urwid.AttrWrap(fill, ""))
@@ -59,7 +65,8 @@ class SimplePopupLauncher(urwid.PopUpLauncher):
 
     def __init__(self, w, text):
         self.text = text
-        self.__super.__init__(w);
+        self.__super.__init__(w)
+        # 这个w参数有用吗？
 
     def create_pop_up(self):
         pop_up = SimplePopupDialog(self.text)
@@ -68,4 +75,4 @@ class SimplePopupLauncher(urwid.PopUpLauncher):
         return pop_up
 
     def get_pop_up_parameters(self):
-        return {'left':0, 'top':1, 'overlay_width':32, 'overlay_height':7}
+        return {'left': 0, 'top': 1, 'overlay_width': 32, 'overlay_height': 7}

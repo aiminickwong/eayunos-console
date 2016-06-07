@@ -1,6 +1,9 @@
+#coding=utf-8
+
 import os
 import urwid
 from eayunos_console_common.configtab import SimplePopupLauncher, SimplePopupDialog
+
 
 class TabNFS(object):
 

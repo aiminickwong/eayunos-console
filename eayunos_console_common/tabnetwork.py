@@ -1,4 +1,5 @@
 #coding=utf-8
+
 import os
 import thread
 import urwid
@@ -7,6 +8,7 @@ import inspect
 import ifconfig
 import subprocess
 from configtab import SimplePopupLauncher, SimplePopupDialog
+
 
 class TabNetwork(object):
 

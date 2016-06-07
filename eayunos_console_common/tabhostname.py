@@ -1,6 +1,10 @@
+#coding=utf-8
+
 import os
 import urwid
 from configtab import SimplePopupLauncher, SimplePopupDialog
+# SimplePopupDialog导入进来没有用到
+
 
 class TabHostname(object):
 
@@ -22,6 +26,7 @@ class TabHostname(object):
         return widget_lines
 
     def delete_line(self, button, line):
+        # button参数没有用到
         self.w_entries.remove(line)
         self.widget.original_widget = self.get_entry_widget()
         self.widget.original_widget.focus_position = max(0, len(self.w_entries)-1)
@@ -35,6 +40,7 @@ class TabHostname(object):
         return pile
 
     def new(self, button):
+        # button参数没有用到
         widget_items = [urwid.Edit("IP: ", ""), urwid.Edit("Hostname: ", "")]
         widget_items.append(urwid.Button("Delete", on_press=self.delete_line, user_data=widget_items))
         self.w_entries.append(widget_items)
@@ -42,7 +48,9 @@ class TabHostname(object):
         self.widget.original_widget.focus_position = len(self.w_entries)
 
     def save(self, button):
-        f = open(self.hosts_file,"w")
+        # button参数没有用到
+        f = open(self.hosts_file, "w")
+        # 可以用with语句，下面就不用f.close了
         for entry in self.w_entries:
             if entry[0].edit_text.strip() and entry[1].edit_text.strip():
                 f.write("%s %s\n" % (entry[0].edit_text, entry[1].edit_text))

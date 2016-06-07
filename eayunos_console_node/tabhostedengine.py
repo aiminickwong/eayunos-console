@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import os
 import sys
 import re
@@ -57,6 +59,7 @@ class TabHostedEngine(object):
             urwid.Divider(),
             self.pre_setup_widget,
         ])
+        # 这里的self.pre_setup_option不用提前声明为[]，下面的两句urwid.RadioButton([], ...)这样即可
 
     def get_new_setup_widget(self):
         blank = urwid.Divider()
@@ -201,8 +204,10 @@ class TabHostedEngine(object):
         cli = vdscli.connect(timeout=900)
         fc_lun_list = []
         FC_DOMAIN = 2
+        # 长量尽量写在文件的上面，或者写在另外一个py文件里
         devices = cli.getDeviceList(FC_DOMAIN)
         if devices['status']['code'] != 0:
+            # if devices['status']['code']即可
             raise RuntimeError(devices['status']['message'])
         for device in devices['devList']:
             device_info = "%s  %sGiB\n%s %s  status: %s" % (
@@ -256,6 +261,7 @@ class TabHostedEngine(object):
                 self.widget.original_widget = self.get_status_widget()
                 self.main_loop.draw_screen()
                 return
+                # 这里的return确实是符合业务功能的？return后这个线程就结束了哦
             if "stopped" == self.get_hosted_engine_status():
                 os.system("echo '\n\n\n' >> %s" % self.setup_log_path)
             self.output.set_text(subprocess.check_output(["tail", "-n", "30", self.setup_log_path]))
