@@ -23,6 +23,7 @@ mkdir -p %{buildroot}/usr/lib/python2.7/site-packages
 mkdir -p %{buildroot}/usr/sbin
 mkdir -p %{buildroot}/etc/eayunos-console-node
 mv eayunos_console_node/answers.conf %{buildroot}/etc/eayunos-console-node
+mv eayunos_console_node/answers_add.conf %{buildroot}/etc/eayunos-console-node
 cp -r eayunos_console_node %{buildroot}/usr/lib/python2.7/site-packages
 cp -r eayunos_console_common %{buildroot}/usr/lib/python2.7/site-packages
 cp -r eayunos_console_manager %{buildroot}/usr/lib/python2.7/site-packages
@@ -45,6 +46,7 @@ tui based setup and management ui for eayunos host
 /usr/lib/python2.7/site-packages/eayunos_console_node
 /usr/lib/python2.7/site-packages/eayunos_console_common
 /etc/eayunos-console-node/answers.conf
+/etc/eayunos-console-node/answers_add.conf
 %attr(0755,root,root) /usr/sbin/node-console
 
 %package manager
