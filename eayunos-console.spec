@@ -35,6 +35,7 @@ Group:      ovirt-engine-third-party
 Requires:	ovirt-engine-appliance
 Requires:	ovirt-hosted-engine-setup
 Requires:	vdsm
+Requires:	python-urwid
 
 %description node
 tui based setup and management ui for eayunos host
@@ -50,6 +51,7 @@ tui based setup and management ui for eayunos host
 Summary:    tui based setup and management ui for eayunos manager
 Group:      ovirt-engine-third-party
 Requires:       ovirt-engine
+Requires:	python-urwid
 
 %description manager
 tui based setup and management ui for eayunos manager
