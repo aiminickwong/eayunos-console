@@ -209,6 +209,8 @@ class TabHostedEngine(object):
             os.system("service supervdsmd stop")
             os.system("vdsm-tool configure")
             os.system("service vdsmd restart")
+            # workaround for imageio-daemon start success
+            os.system("service ovirt-imageio-daemon restart")
         connecting = True
         fc_lun_list = []
         FC_DOMAIN = 2
