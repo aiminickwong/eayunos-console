@@ -50,7 +50,9 @@ class TabHostedEngine(object):
         self.pre_setup_option = []
         self.pre_setup_widget = urwid.AttrMap(self.get_new_setup_widget(), "")
         #self.pre_setup_widget.original_widget=self.get_new_setup_widget()
-        return urwid.Pile([
+        return WidgetWithPopup(urwid.Pile([
+            urwid.Button(u"Clean up setup failures before setup", on_press=self.cleanup_before_setup),
+            urwid.Divider(),
             urwid.Text(u"Choose an option to setup:"),
             urwid.Divider(),
             urwid.GridFlow([
@@ -60,7 +62,20 @@ class TabHostedEngine(object):
             ], 33, 2, 0, 'left'),
             urwid.Divider(),
             self.pre_setup_widget,
-        ])
+        ]))
+
+    def cleanup_before_setup(self, button):
+        self.widget.original_widget.open_pop_up()
+        self.main_loop.draw_screen()
+        os.system("service ovirt-ha-agent stop")
+        os.system("chkconfig ovirt-ha-agent off")
+        os.system("kill `ps aux |grep HostedEngin[e]|tr -s ' '|cut -d' ' -f2`")
+        os.system("service ovirt-ha-broker stop")
+        os.system("rm -f /etc/ovirt-hosted-engine/hosted-engine.conf")
+        os.system("rm -f /var/run/vdsm/*.recovery")
+        os.system("service vdsmd restart")
+        self.widget.original_widget.cleanup_finish()
+        self.main_loop.draw_screen()
 
     def get_new_setup_widget(self):
         blank = urwid.Divider()
@@ -326,4 +341,47 @@ class TabHostedEngine(object):
                     )
                     break
         return str(gateway)
+
+class WidgetWithPopup(urwid.PopUpLauncher):
+
+    def __init__(self, widget):
+        urwid.PopUpLauncher.__init__(self, widget)
+
+    def create_pop_up(self):
+        self.pop_up = CleanupDialog()
+        urwid.connect_signal(self.pop_up, 'close',
+            lambda button: self.close_pop_up())
+        return self.pop_up
+
+    def get_pop_up_parameters(self):
+        return {'left':0, 'top':1, 'overlay_width':32, 'overlay_height':7}
+
+    def cleanup_finish(self):
+        self.pop_up.cleanup_finish()
+
+
+class CleanupDialog(urwid.WidgetWrap):
+
+    signals = ['close']
+
+    def __init__(self):
+        urwid.WidgetWrap.__init__(self, None)
+        self.close_button = urwid.Button("OK")
+        urwid.connect_signal(self.close_button, 'click',
+            lambda button:self._emit("close"))
+        self.__super.__init__(
+            urwid.AttrWrap(
+                urwid.Filler(
+                    urwid.Pile([
+                        urwid.Text("Cleaning up..."),
+                    ])), 'popbg'))
+
+    def cleanup_finish(self):
+        self._set_w(
+            urwid.AttrWrap(
+                urwid.Filler(
+                    urwid.Pile([
+                        urwid.Text("Cleanup sucess"),
+                        self.close_button,
+                    ])), 'popbg'))
 
