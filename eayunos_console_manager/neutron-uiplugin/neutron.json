@@ -1,0 +1,11 @@
+{
+   // Unique name of the plugin
+   "name": "NeutronPlugin",
+
+   // Url of plugin host page that bootstraps plugin code
+   "url": "plugin/NeutronPlugin/plugin.html",
+
+   // Path to plugin resource files relative to descriptor
+   "resourcePath": "neutron-resources"
+}
+

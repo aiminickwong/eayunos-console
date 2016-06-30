@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+<script type='text/javascript'>
+    var api = parent.pluginApi('NeutronPlugin');
+    var cfg = api.configObject();
+    var language = top.location.href.split("=")[1].split("#")[0];
+
+    api.register({
+        UiInit: function() {
+            api.addMainTab('Neutron', 'neutron-main-tab',
+                'plugin/NeutronPlugin/mainTab.html');
+            api.setTabAccessible('neutron-main-tab', false);
+        },
+        SystemTreeSelectionChange: function(selectedNode) {
+            api.setTabAccessible('neutron-main-tab', selectedNode.type == 'Providers');
+        }
+    });
+    api.ready();
+</script>
+</body>
+</html>

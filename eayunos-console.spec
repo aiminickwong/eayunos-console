@@ -22,11 +22,13 @@ tui based setup and management ui for eayunos
 mkdir -p %{buildroot}/usr/lib/python2.7/site-packages
 mkdir -p %{buildroot}/usr/sbin
 mkdir -p %{buildroot}/etc/eayunos-console-node
+mkdir -p %{buildroot}/usr/share
 mv eayunos_console_node/answers.conf %{buildroot}/etc/eayunos-console-node
 mv eayunos_console_node/answers_add.conf %{buildroot}/etc/eayunos-console-node
 cp -r eayunos_console_node %{buildroot}/usr/lib/python2.7/site-packages
 cp -r eayunos_console_common %{buildroot}/usr/lib/python2.7/site-packages
 cp -r eayunos_console_manager %{buildroot}/usr/lib/python2.7/site-packages
+mv %{buildroot}/usr/lib/python2.7/site-packages/eayunos_console_manager/neutron-uiplugin %{buildroot}/usr/share
 cp node-console %{buildroot}/usr/sbin
 cp manager-console %{buildroot}/usr/sbin
 
@@ -62,6 +64,7 @@ tui based setup and management ui for eayunos manager
 %defattr(-,root,root,-)
 /usr/lib/python2.7/site-packages/eayunos_console_manager
 /usr/lib/python2.7/site-packages/eayunos_console_common
+/usr/share/neutron-uiplugin
 %attr(0755,root,root) /usr/sbin/manager-console
 
 %clean
