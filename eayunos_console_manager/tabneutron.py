@@ -58,16 +58,13 @@ class TabNeutron(object):
 
     def vnic_profile_changed_mgmt(self, button, selected):
         if selected:
-            os.system("echo %s : %s >> /tmp/ply" % (self.w_mgmt_profile.get_vnic_profile_id_by_name(button.get_label()), self.w_int_profile.get_vnic_profile_id()))
             if self.w_mgmt_profile.get_vnic_profile_id_by_name(button.get_label()) == self.w_int_profile.get_vnic_profile_id():
                 self.w_int_profile.set_ip_info(False)
             else:
                 self.w_int_profile.set_ip_info(True)
-            self.main_loop.draw_screen()
 
     def vnic_profile_changed_int(self, button, selected):
         if selected:
-            os.system("echo %s : %s >> /tmp/ply" % (self.w_mgmt_profile.get_vnic_profile_id(), self.w_int_profile.get_vnic_profile_id_by_name(button.get_label())))
             if self.w_mgmt_profile.get_vnic_profile_id() == self.w_int_profile.get_vnic_profile_id_by_name(button.get_label()):
                 self.w_int_profile.set_ip_info(False)
             else:
@@ -271,7 +268,7 @@ class VnicProfileSelector(urwid.Pile):
         self.w_profs = urwid.AttrMap("", "")
         self.w_profs.original_widget = self.genRadioButton(
             u"Vnic Profiles: ",
-            [(prof.name, None) for prof in vnic_profiles],
+            [(prof.name, self.vnic_callback) for prof in vnic_profiles],
             self.w_profs_opts)
 
         widget_list = [
@@ -292,7 +289,7 @@ class VnicProfileSelector(urwid.Pile):
     def network_changed(self, button, selected):
         if selected:
             self.refresh_vnic_profiles(button.get_label())
-            if self.ip_info:
+            if self.ip_info and len(self.w_profs_opts)>0:
                 self.vnic_callback(self.w_profs_opts[0], True)
 
     def refresh_vnic_profiles(self, network_name):
