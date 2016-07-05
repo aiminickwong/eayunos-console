@@ -35,7 +35,7 @@ l.set_widgetList_other(go_trial, go_product)
 p.set_widgetList_other(go_login, go_checkbox)
 c.set_widgetList_other(go_product, go_login)
 
-loop.widget = go_login
+loop.widget = go_trial
 
 if __name__ == '__main__':
    loop.run()
