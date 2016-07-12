@@ -160,6 +160,7 @@ class TabNeutron(object):
  - sed -i 's/#SESSION_COOKIE_SECURE/SESSION_COOKIE_SECURE/' /etc/openstack-dashboard/local_settings
  - service httpd restart
  - service neutron-openvswitch-agent restart
+ - chkconfig cloud-init off
  - source /root/keystonerc_admin
  - keystone user-password-update --pass %s admin
  - sed -i '/^export OS_PASSWORD/c\export OS_PASSWORD=%s' /root/keystonerc_admin""" % (
