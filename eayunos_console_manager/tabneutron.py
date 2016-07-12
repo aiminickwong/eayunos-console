@@ -159,6 +159,7 @@ class TabNeutron(object):
  - sed -i 's/#CSRF_COOKIE_SECURE/CSRF_COOKIE_SECURE/' /etc/openstack-dashboard/local_settings
  - sed -i 's/#SESSION_COOKIE_SECURE/SESSION_COOKIE_SECURE/' /etc/openstack-dashboard/local_settings
  - service httpd restart
+ - mysql neutron --execute="delete from ml2_gre_endpoints where ip_address='127.0.0.1'"
  - service neutron-openvswitch-agent restart
  - chkconfig cloud-init off
  - source /root/keystonerc_admin
