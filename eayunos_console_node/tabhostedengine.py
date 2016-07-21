@@ -18,12 +18,13 @@ os.sys.path.insert(
             os.path.abspath(
                 inspect.getfile(inspect.currentframe())))))
 from eayunos_console_common import ifconfig
+from eayunos_console_common.configtab import Tab
 from vdsm import vdscli
 import errno
 from socket import error as socket_error
 
 
-class TabHostedEngine(object):
+class TabHostedEngine(Tab):
 
     def __init__(self, main_loop):
         self.main_loop = main_loop
@@ -149,14 +150,6 @@ class TabHostedEngine(object):
                 ("fc", self.update_storage_domain_fc)
             ], self.w_storage_type)
 
-    def genRadioButton(self, caption_text, options, radiobutton_group):
-        return urwid.Columns([
-                ('pack', urwid.Text(caption_text)),
-                urwid.GridFlow([
-                    urwid.RadioButton(radiobutton_group, option[0], on_state_change=option[1])
-                    for option in options], 30, 2, 0, 'left'),
-            ])
-
     def begin_setup(self, button):
         if self.validate_setup_input():
             os.system("cp /etc/eayunos-console-node/answers.conf %s" % self.answers_path)
@@ -198,11 +191,6 @@ class TabHostedEngine(object):
         os.system("touch %s" % self.setup_log_path)
         os.system("screen -S hosted_engine_setup -X stuff 'ovirt-hosted-engine-setup --config-append=%s |tee %s\n'" % (self.answers_path, self.setup_log_path))
         self.widget.original_widget = self.get_setup_widget()
-
-    def get_radio_option(self, radiobutton_group):
-        for button in radiobutton_group:
-            if button.get_state():
-                return button.get_label()
 
     def update_storage_domain_nfs(self, button, selected):
         if selected:

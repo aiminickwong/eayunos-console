@@ -1,13 +1,13 @@
 import os
 import time
 import urwid
-from eayunos_console_common.configtab import SimplePopupLauncher, SimplePopupDialog
+from eayunos_console_common.configtab import SimplePopupLauncher, SimplePopupDialog, Tab
 
 from ovirtsdk.api import API
 from ovirtsdk.xml import params
 
 
-class TabNeutron(object):
+class TabNeutron(Tab):
 
     def __init__(self, main_loop):
         self.main_loop = main_loop
@@ -249,7 +249,7 @@ ProxyPassReverse "/static" "http://{IP}/static"
         self.log("Httpd reverse proxy configured")
 
 
-class VnicProfileSelector(urwid.Pile):
+class VnicProfileSelector(urwid.Pile, Tab):
 
     def __init__(self, api, ip_info, vnic_callback):
         self.api = api
@@ -304,19 +304,6 @@ class VnicProfileSelector(urwid.Pile):
             u"Vnic Profiles: ",
             [(prof.name, self.vnic_callback) for prof in vnic_profiles],
             self.w_profs_opts)
-
-    def genRadioButton(self, caption_text, options, radiobutton_group):
-        radio_button_liust = [
-            urwid.RadioButton(radiobutton_group, option[0], on_state_change=option[1]) for option in options]
-        return urwid.Columns([
-                ('pack', urwid.Text(caption_text)),
-                urwid.GridFlow(radio_button_liust, 30, 2, 0, 'left'),
-            ])
-
-    def get_radio_option(self, radiobutton_group):
-        for button in radiobutton_group:
-            if button.get_state():
-                return button.get_label()
 
     def get_vnic_profile_id(self):
         try:

@@ -49,6 +49,21 @@ class ConfigTab(urwid.Filler):
         urwid.Filler.keypress(self, size, key)
 
 
+class Tab(object):
+    def genRadioButton(self, caption_text, options, radiobutton_group):
+        return urwid.Columns([
+            ('pack', urwid.Text(caption_text)),
+            urwid.GridFlow([
+                urwid.RadioButton(radiobutton_group, option[0], on_state_change=option[1])
+                for option in options], 30, 2, 0, 'left'),
+        ])
+
+    def get_radio_option(self, radiobutton_group):
+        for button in radiobutton_group:
+            if button.get_state():
+                return button.get_label()
+
+
 class SimplePopupDialog(urwid.WidgetWrap):
 
     signals = ["close"]
