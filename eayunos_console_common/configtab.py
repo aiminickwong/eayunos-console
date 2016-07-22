@@ -63,6 +63,12 @@ class Tab(object):
             if button.get_state():
                 return button.get_label()
 
+    def set_radio_option(self, radiobutton_group, option):
+        for button in radiobutton_group:
+            if button.get_label() == option:
+                button.set_state(True)
+                return
+
 
 class SimplePopupDialog(urwid.WidgetWrap):
 

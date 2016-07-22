@@ -3,7 +3,7 @@
 
 import urwid
 from eayunos_console_common import ConfigTab, TabNetwork, TabHostname
-from eayunos_console_manager import Product, LogIn, CheckBox, TabNeutron
+from eayunos_console_manager import Product, LogIn, CheckBox, TabNeutron, TabNotifier
 
 palette = [
        ('I say', 'yellow', 'light gray', 'bold'),
@@ -23,6 +23,7 @@ config_tab_list = [
     TabNetwork(loop),
     TabHostname(loop),
     TabNeutron(loop),
+    TabNotifier(loop),
 ]
 
 
