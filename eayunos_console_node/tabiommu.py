@@ -8,7 +8,7 @@ class TabIOMMU(object):
     def __init__(self, main_loop):
         self.main_loop = main_loop
         self.name = u"IOMMU Config"
-        self.widget = SimplePopupLauncher(self.get_widget(), "Config success! Please reboot the system to let the config take effect.")
+        self.widget = SimplePopupLauncher(self.get_widget())
 
     def get_widget(self):
         if os.system("cat /etc/default/grub|grep iommu &>/dev/null"):
@@ -38,4 +38,5 @@ class TabIOMMU(object):
 
     def apply_grub_config(self):
         os.system("grub2-mkconfig -o /boot/grub2/grub.cfg")
+        self.widget.set_popup_text("Config success! Please reboot the system to let the config take effect.")
         self.widget.open_pop_up()

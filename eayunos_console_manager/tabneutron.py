@@ -13,8 +13,7 @@ class TabNeutron(Tab):
         self.main_loop = main_loop
         self.name = u"Neutron Deploy"
         self.vm_name = "NeutronAppliance"
-        self.widget = SimplePopupLauncher(self.get_pass(),
-            "Vm named '%s' exists, please remove or rename it and try again" % self.vm_name)
+        self.widget = SimplePopupLauncher(self.get_pass())
 
     def get_pass(self):
         self.w_password = urwid.Edit(u"Please enter admin@internal password to procceed: ", mask="*")
@@ -29,8 +28,10 @@ class TabNeutron(Tab):
             password=self.w_password.edit_text.encode("ascii", "ignore"),
             insecure=True)
         if not self.api.vms.get(name=self.vm_name) == None:
+            self.widget.set_popup_text("Vm named '%s' exists, please remove or rename it and try again" % self.vm_name)
             self.widget.open_pop_up()
             return
+
         divider = urwid.Divider("-")
         self.w_mgmt_profile = VnicProfileSelector(self.api, True, self.vnic_profile_changed_mgmt)
         self.w_int_profile = VnicProfileSelector(self.api, True, self.vnic_profile_changed_int)

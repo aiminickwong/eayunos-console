@@ -19,8 +19,7 @@ class TabNetwork(object):
 
         self.hostname = urwid.Edit(u"Hostname: ", socket.gethostname())
         self.hostname_popup = SimplePopupLauncher(
-            urwid.Columns(([self.hostname, urwid.Button(u"Save", on_press=self.save_hostname)])),
-            "Save success.")
+            urwid.Columns(([self.hostname, urwid.Button(u"Save", on_press=self.save_hostname)])))
         self.widget_list.extend([
             urwid.Divider("-"),
             self.hostname_popup,
@@ -106,6 +105,7 @@ class TabNetwork(object):
 
     def on_if_apply(self, button, if_info):
         self.widget.set_if_info(if_info)
+        self.widget.set_popup_text("Save success.")
         self.widget.open_pop_up()
         thread.start_new_thread(self.post_on_if_apply, (if_info,))
 

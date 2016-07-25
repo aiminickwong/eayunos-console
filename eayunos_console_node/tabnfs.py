@@ -12,7 +12,7 @@ class TabNFS(object):
         self.name = u"NFS Config"
         self.exports_file = "/etc/exports"
         self.w_entries = self.load_entries()
-        self.widget = SimplePopupLauncher(self.get_entry_widget(), "Save success.")
+        self.widget = SimplePopupLauncher(self.get_entry_widget())
 
     def load_entries(self):
         widget_lines = []
@@ -59,4 +59,5 @@ class TabNFS(object):
         f.close()
         os.system("service nfs start &>/dev/null")
         os.system("exportfs -r")
+        self.widget.set_popup_text("Save success.")
         self.widget.open_pop_up()

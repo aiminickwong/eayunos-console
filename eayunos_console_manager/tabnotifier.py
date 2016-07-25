@@ -16,7 +16,7 @@ class TabNotifier(Tab):
         self.mail_pass_key = "MAIL_PASSWORD"
         self.encryption_key = "MAIL_SMTP_ENCRYPTION"
         self.mail_from_key = "MAIL_FROM"
-        self.widget = SimplePopupLauncher(self.load_entries(), "Configuration finished.")
+        self.widget = SimplePopupLauncher(self.load_entries())
 
     def load_entries(self):
         notifier_conf = {}
@@ -63,4 +63,5 @@ class TabNotifier(Tab):
             f.write("MAIL_FROM=%s\n" % self.w_mail_from.edit_text.strip())
             f.write("HTML_MESSAGE_FORMAT=true\n")
         os.system("service ovirt-engine-notifier restart")
+        self.widget.set_popup_text("Configuration finished.")
         self.widget.open_pop_up()

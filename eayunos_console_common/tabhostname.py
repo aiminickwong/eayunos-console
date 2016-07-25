@@ -13,7 +13,7 @@ class TabHostname(object):
         self.name = u"Hosts Config"
         self.hosts_file = "/etc/hosts"
         self.w_entries = self.load_entries()
-        self.widget = SimplePopupLauncher(self.get_entry_widget(), "Save success.")
+        self.widget = SimplePopupLauncher(self.get_entry_widget())
 
     def load_entries(self):
         widget_lines = []
@@ -55,4 +55,5 @@ class TabHostname(object):
             if entry[0].edit_text.strip() and entry[1].edit_text.strip():
                 f.write("%s %s\n" % (entry[0].edit_text, entry[1].edit_text))
         f.close()
+        self.widget.set_popup_text("Save success.")
         self.widget.open_pop_up()

@@ -84,10 +84,9 @@ class SimplePopupDialog(urwid.WidgetWrap):
 
 class SimplePopupLauncher(urwid.PopUpLauncher):
 
-    def __init__(self, w, text):
-        self.text = text
+    def __init__(self, w):
+        self.text = "Popup"
         self.__super.__init__(w)
-        # 这个w参数有用吗？
 
     def create_pop_up(self):
         pop_up = SimplePopupDialog(self.text)
@@ -97,3 +96,6 @@ class SimplePopupLauncher(urwid.PopUpLauncher):
 
     def get_pop_up_parameters(self):
         return {'left': 0, 'top': 1, 'overlay_width': 32, 'overlay_height': 7}
+
+    def set_popup_text(self, text):
+        self.text = text
