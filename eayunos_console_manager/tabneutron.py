@@ -72,6 +72,7 @@ class TabNeutron(Tab):
                 self.w_int_profile.set_ip_info(True)
 
     def begin_deploy(self, button):
+        conf_widget = self.widget.original_widget
         self.output = urwid.Text("")
         widget = urwid.BoxAdapter(urwid.Frame(
             header=urwid.Text("Setup output:"),
@@ -80,6 +81,22 @@ class TabNeutron(Tab):
             focus_part="header"), 20)
         widget.set_focus("footer")
         self.widget.original_widget = widget
+
+        self.log(u"Detecting ip conflicts...")
+        conflict = True
+        conflict_ip = self.w_mgmt_profile.w_ip.edit_text
+        if os.system("arping %s -w 10" % conflict_ip):
+            conflict = False
+        elif not self.mgmt_int_same():
+            conflict_ip = self.w_int_profile.w_ip.edit_text
+            if os.system("arping %s -w 10" % conflict_ip):
+                conflict = False
+        if conflict:
+            self.widget.set_popup_text("IP address %s is already used, please configure a unused IP address." % conflict_ip)
+            self.widget.open_pop_up()
+            self.widget.original_widget = conf_widget
+            return
+
         self.log(u"Begin neutron appliance deploy")
         self.add_vm()
         self.add_external_provider()
@@ -92,8 +109,11 @@ class TabNeutron(Tab):
         self.output.set_text(self.output.text + text + "\n")
         self.main_loop.draw_screen()
 
+    def mgmt_int_same(self):
+        return self.w_mgmt_profile.get_vnic_profile_id() == self.w_int_profile.get_vnic_profile_id()
+
     def add_vm(self):
-        mgmt_int_same = self.w_mgmt_profile.get_vnic_profile_id() == self.w_int_profile.get_vnic_profile_id()
+        mgmt_int_same = self.mgmt_int_same()
         template_name = "Neutron_Appliance_Template"
         nics = []
         nics.append(params.NIC(
