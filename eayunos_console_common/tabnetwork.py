@@ -37,6 +37,7 @@ class TabNetwork(object):
     def save_hostname(self, button):
         os.system("hostname %s" % self.hostname.edit_text)
         os.system("echo 'hostname %s' > /etc/sysconfig/network" % self.hostname.edit_text)
+        self.hostname_popup.set_popup_text("Save success.")
         self.hostname_popup.open_pop_up()
 
     def get_bridge_widgets(self):
@@ -105,7 +106,6 @@ class TabNetwork(object):
 
     def on_if_apply(self, button, if_info):
         self.widget.set_if_info(if_info)
-        self.widget.set_popup_text("Save success.")
         self.widget.open_pop_up()
         thread.start_new_thread(self.post_on_if_apply, (if_info,))
 
