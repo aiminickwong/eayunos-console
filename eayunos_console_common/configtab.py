@@ -82,16 +82,28 @@ class SimplePopupDialog(urwid.WidgetWrap):
         self.__super.__init__(urwid.AttrWrap(fill, ""))
 
 
+class SimplePopupWaitDialog(urwid.WidgetWrap):
+
+    def __init__(self, text):
+        pile = urwid.Pile([urwid.Text(text)])
+        fill = urwid.Filler(pile)
+        self.__super.__init__(urwid.AttrWrap(fill, ""))
+
+
 class SimplePopupLauncher(urwid.PopUpLauncher):
 
     def __init__(self, w):
         self.text = "Popup"
         self.__super.__init__(w)
+        self.wait = False
 
     def create_pop_up(self):
-        pop_up = SimplePopupDialog(self.text)
-        urwid.connect_signal(pop_up, 'close',
-            lambda button: self.close_pop_up())
+        if self.wait:
+            pop_up = SimplePopupWaitDialog(self.text)
+        else:
+            pop_up = SimplePopupDialog(self.text)
+            urwid.connect_signal(pop_up, 'close',
+                lambda button: self.close_pop_up())
         return pop_up
 
     def get_pop_up_parameters(self):
@@ -99,3 +111,6 @@ class SimplePopupLauncher(urwid.PopUpLauncher):
 
     def set_popup_text(self, text):
         self.text = text
+
+    def set_wait(self, wait):
+        self.wait = wait
