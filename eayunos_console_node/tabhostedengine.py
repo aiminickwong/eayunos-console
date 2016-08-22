@@ -18,7 +18,7 @@ os.sys.path.insert(
             os.path.abspath(
                 inspect.getfile(inspect.currentframe())))))
 from eayunos_console_common import ifconfig
-from eayunos_console_common.configtab import Tab
+from eayunos_console_common.configtab import Tab, SimplePopupLauncher
 from vdsm import vdscli
 import errno
 from socket import error as socket_error
@@ -34,6 +34,7 @@ class TabHostedEngine(Tab):
         self.widget = urwid.AttrMap("", "")
         self.setup_log_path = "/tmp/.hosted-engine-setup.log"
         self.answers_path = "/tmp/.answers.conf"
+        self.fc_dev_map = {}
         if hosted_engine_status == "stopped":
             self.widget.original_widget = self.get_pre_setup_widget()
         elif hosted_engine_status == "setting_up":
@@ -51,7 +52,7 @@ class TabHostedEngine(Tab):
         self.pre_setup_option = []
         self.pre_setup_widget = urwid.AttrMap(self.get_new_setup_widget(), "")
         #self.pre_setup_widget.original_widget=self.get_new_setup_widget()
-        return WidgetWithPopup(urwid.Pile([
+        return SimplePopupLauncher(urwid.Pile([
             urwid.Button(u"Clean up setup failures before setup", on_press=self.cleanup_before_setup),
             urwid.Divider(),
             urwid.Text(u"Choose an option to setup:"),
@@ -66,6 +67,8 @@ class TabHostedEngine(Tab):
         ]))
 
     def cleanup_before_setup(self, button):
+        self.widget.original_widget.set_wait(True)
+        self.widget.original_widget.set_popup_text("Cleaning up...")
         self.widget.original_widget.open_pop_up()
         self.main_loop.draw_screen()
         os.system("service ovirt-ha-agent stop")
@@ -75,7 +78,9 @@ class TabHostedEngine(Tab):
         os.system("rm -f /etc/ovirt-hosted-engine/hosted-engine.conf")
         os.system("rm -f /var/run/vdsm/*.recovery")
         os.system("service vdsmd restart")
-        self.widget.original_widget.cleanup_finish()
+        self.widget.original_widget.set_wait(False)
+        self.widget.original_widget.set_popup_text("Cleanup sucess")
+        self.widget.original_widget.open_pop_up()
         self.main_loop.draw_screen()
 
     def get_new_setup_widget(self):
@@ -171,6 +176,13 @@ class TabHostedEngine(Tab):
             self.update_answers_file("HEVD_SPICE_PKI_SUBJECT_CN", host_hostname)
             host_vcpu_count = psutil.cpu_count(logical=True)
             self.update_answers_file("HEV_VM_VCPUS", str(min(max(min(2, host_vcpu_count), host_vcpu_count/2), 4)))
+            if 'fc' == self.get_radio_option(self.w_storage_type):
+                fc_dev = self.fc_dev_map[self.get_radio_option(self.w_lun_list).split("  ")[0]]
+                self.widget.original_widget.set_wait(True)
+                self.widget.original_widget.set_popup_text("Clearing FC domain /dev/%s" % fc_dev)
+                self.widget.original_widget.open_pop_up()
+                self.main_loop.draw_screen()
+                os.system("dd if=/dev/zero of=/dev/%s bs=10M count=1000" % fc_dev)
             self.begin_setup_screen()
 
     def begin_setup_existing(self, button):
@@ -216,6 +228,7 @@ class TabHostedEngine(Tab):
             os.system("service ovirt-imageio-daemon restart")
         connecting = True
         fc_lun_list = []
+        self.fc_dev_map = {}
         FC_DOMAIN = 2
         while connecting:
             try:
@@ -234,6 +247,7 @@ class TabHostedEngine(Tab):
                     device["GUID"], int(device['capacity']) / pow(2, 30),
                     device['vendorID'], device['productID'], device["status"],
                 )
+            self.fc_dev_map[device["GUID"]] = device["pathstatus"][0]["physdev"]
             fc_lun_list.append((device_info, None))
         return fc_lun_list
 
@@ -329,47 +343,4 @@ class TabHostedEngine(Tab):
                     )
                     break
         return str(gateway)
-
-class WidgetWithPopup(urwid.PopUpLauncher):
-
-    def __init__(self, widget):
-        urwid.PopUpLauncher.__init__(self, widget)
-
-    def create_pop_up(self):
-        self.pop_up = CleanupDialog()
-        urwid.connect_signal(self.pop_up, 'close',
-            lambda button: self.close_pop_up())
-        return self.pop_up
-
-    def get_pop_up_parameters(self):
-        return {'left':0, 'top':1, 'overlay_width':32, 'overlay_height':7}
-
-    def cleanup_finish(self):
-        self.pop_up.cleanup_finish()
-
-
-class CleanupDialog(urwid.WidgetWrap):
-
-    signals = ['close']
-
-    def __init__(self):
-        urwid.WidgetWrap.__init__(self, None)
-        self.close_button = urwid.Button("OK")
-        urwid.connect_signal(self.close_button, 'click',
-            lambda button:self._emit("close"))
-        self.__super.__init__(
-            urwid.AttrWrap(
-                urwid.Filler(
-                    urwid.Pile([
-                        urwid.Text("Cleaning up..."),
-                    ])), 'popbg'))
-
-    def cleanup_finish(self):
-        self._set_w(
-            urwid.AttrWrap(
-                urwid.Filler(
-                    urwid.Pile([
-                        urwid.Text("Cleanup sucess"),
-                        self.close_button,
-                    ])), 'popbg'))
 
