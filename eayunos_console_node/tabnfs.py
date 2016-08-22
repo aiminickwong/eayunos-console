@@ -47,6 +47,9 @@ class TabNFS(object):
         self.widget.original_widget.focus_position = len(self.w_entries)
 
     def save(self, button):
+        self.widget.set_wait(True)
+        self.widget.set_popup_text("Saving and applying nfs config...")
+        self.widget.open_pop_up()
         f = open(self.exports_file,"w")
         for entry in self.w_entries:
             path = entry[0].edit_text.strip()
@@ -59,5 +62,6 @@ class TabNFS(object):
         f.close()
         os.system("service nfs start &>/dev/null")
         os.system("exportfs -r")
+        self.widget.set_wait(False)
         self.widget.set_popup_text("Save success.")
         self.widget.open_pop_up()
