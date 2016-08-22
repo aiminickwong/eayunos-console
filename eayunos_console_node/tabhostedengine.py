@@ -35,6 +35,7 @@ class TabHostedEngine(Tab):
         self.setup_log_path = "/tmp/.hosted-engine-setup.log"
         self.answers_path = "/tmp/.answers.conf"
         self.fc_dev_map = {}
+        self.widget_height = 40
         if hosted_engine_status == "stopped":
             self.widget.original_widget = self.get_pre_setup_widget()
         elif hosted_engine_status == "setting_up":
@@ -280,7 +281,7 @@ class TabHostedEngine(Tab):
             header=urwid.Text("Setup output:"),
             body=urwid.Filler(self.output, valign="bottom"),
             footer=urwid.Button("percentage"),
-            focus_part="header"), 50)
+            focus_part="header"), self.widget_height)
         widget.set_focus("footer")
         poll_thread = threading.Thread(target=self.poll_setup_status)
         poll_thread.setDaemon(True)
@@ -297,7 +298,7 @@ class TabHostedEngine(Tab):
                 return
             if "stopped" == self.get_hosted_engine_status():
                 os.system("echo '\n\n\n' >> %s" % self.setup_log_path)
-            self.output.set_text(subprocess.check_output(["tail", "-n", "30", self.setup_log_path]))
+            self.output.set_text(subprocess.check_output(["tail", "-n", str(self.widget_height-4), self.setup_log_path]))
             self.main_loop.draw_screen()
             if "stopped" == self.get_hosted_engine_status():
                 return
