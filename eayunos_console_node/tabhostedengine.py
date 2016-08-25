@@ -12,6 +12,7 @@ import inspect
 import threading
 import time
 import psutil
+import shutil
 os.sys.path.insert(
     0, os.path.dirname(
         os.path.dirname(
@@ -77,8 +78,12 @@ class TabHostedEngine(Tab):
         os.system("kill `ps aux |grep HostedEngin[e]|tr -s ' '|cut -d' ' -f2`")
         os.system("service ovirt-ha-broker stop")
         os.system("rm -f /etc/ovirt-hosted-engine/hosted-engine.conf")
-        os.system("rm -f /var/run/vdsm/*.recovery")
-        os.system("service vdsmd restart")
+        os.system("service vdsmd stop")
+        for file_name in os.listdir("/var/run/vdsm"):
+            if file_name.endswith(".recovery"):
+                shutil.rmtree("/var/run/vdsm/%s" % file_name.split('.')[0])
+                os.remove("/var/run/vdsm/%s" % file_name)
+        os.system("service vdsmd start")
         self.widget.original_widget.set_wait(False)
         self.widget.original_widget.set_popup_text("Cleanup sucess")
         self.widget.original_widget.open_pop_up()
