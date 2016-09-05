@@ -61,7 +61,8 @@ class TabNFS(object):
                 os.system("mkdir -p %s" % path)
                 os.system("chown -R vdsm:kvm %s" % path)
         f.close()
-        os.system("service nfs start &>/dev/null")
+        if os.system("service nfs status &>/dev/null") is not 0:
+            os.system("service nfs start &>/dev/null")
         os.system("exportfs -r")
         self.widget.set_wait(False)
         self.widget.set_popup_text("Save success.")
