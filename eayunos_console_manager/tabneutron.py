@@ -185,7 +185,9 @@ class TabNeutron(Tab):
  - chkconfig cloud-init off
  - source /root/keystonerc_admin
  - keystone user-password-update --pass %s admin
- - sed -i '/^export OS_PASSWORD/c\export OS_PASSWORD=%s' /root/keystonerc_admin""" % (
+ - sed -i '/^export OS_PASSWORD/c\export OS_PASSWORD=%s' /root/keystonerc_admin
+ - sed -i '/^ssh_pwauth:/c\ssh_pwauth:true\\npreserve_hostname:true' /etc/cloud/cloud.cfg
+ - sed -i '/update_hostname/d' /etc/cloud/cloud.cfg""" % (
                 self.w_mgmt_profile.w_ip.edit_text,
                 self.w_mgmt_profile.w_ip.edit_text if mgmt_int_same else self.w_int_profile.w_ip.edit_text,
                 self.w_keystone_pass.edit_text,
